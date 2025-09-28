@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LND Car Store | Showroom Xe Sang</title>
+    <link rel="icon"
+          href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚗</text></svg>">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: #ffffff;
+            line-height: 1.6;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #000000 0%, #1a1a1a 50%, #2c2c2c 100%);
+            padding: 15px 0;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            border-bottom: 2px solid #d4af37;
+        }
+
+        .header-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            text-decoration: none;
+            color: #d4af37;
+        }
+
+        .logo h1 {
+            font-size: 2.5rem;
+            font-weight: bold;
+            letter-spacing: 2px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .logo span {
+            color: #ffffff;
+            font-size: 1rem;
+            margin-left: 10px;
+        }
+
+        .search-form {
+            position: relative;
+            min-width: 400px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 50px 12px 20px;
+            border: 2px solid #d4af37;
+            border-radius: 25px;
+            background: rgba(255,255,255,0.1);
+            color: #ffffff;
+            font-size: 14px;
+            backdrop-filter: blur(10px);
+        }
+
+        .search-input::placeholder {
+            color: rgba(255,255,255,0.7);
+        }
+
+        .search-btn {
+            position: absolute;
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #d4af37;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 20px;
+            color: #000;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .search-btn:hover {
+            background: #ffd700;
+            transform: translateY(-50%) scale(1.05);
+        }
+
+        .header-nav {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            padding: 10px 15px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            background: rgba(255,255,255,0.05);
+        }
+
+        .nav-item:hover {
+            background: rgba(212,175,55,0.2);
+            transform: translateY(-2px);
+        }
+
+        .nav-icon {
+            font-size: 1.2rem;
+            color: #d4af37;
+        }
+
+        .nav-text {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .nav-label {
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.7);
+        }
+
+        .nav-value {
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .nav-bar {
+            background: rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(212,175,55,0.3);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 40px;
+            padding: 15px 0;
+        }
+
+        .nav-links a {
+            color: #ffffff;
+            text-decoration: none;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-links a:hover {
+            color: #d4af37;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #d4af37;
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .main-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px 20px;
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 30px;
+        }
+
+        .sidebar {
+            background: linear-gradient(135deg, rgba(0,0,0,0.6) 0%, rgba(26,26,46,0.8) 100%);
+            padding: 25px;
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(212,175,55,0.3);
+            height: fit-content;
+        }
+
+        .sidebar-section {
+            margin-bottom: 30px;
+        }
+
+        .sidebar-title {
+            color: #d4af37;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .price-filter {
+            margin-bottom: 20px;
+        }
+
+        .price-inputs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .price-input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid rgba(212,175,55,0.5);
+            border-radius: 8px;
+            background: rgba(255,255,255,0.1);
+            color: #ffffff;
+            font-size: 14px;
+        }
+
+        .checkbox-group label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            color: rgba(255,255,255,0.9);
+            transition: color 0.3s ease;
+        }
+
+        .checkbox-group label:hover {
+            color: #d4af37;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            accent-color: #d4af37;
+        }
+
+        .filter-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #d4af37 0%, #ffd700 100%);
+            color: #000;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+        }
+
+        .filter-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(212,175,55,0.3);
+        }
+
+        .product-section {
+            background: rgba(0,0,0,0.3);
+            border-radius: 15px;
+            padding: 25px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(212,175,55,0.3);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .section-title {
+            color: #d4af37;
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        .sort-dropdown {
+            position: relative;
+        }
+
+        .sort-btn {
+            background: rgba(212,175,55,0.2);
+            color: #ffffff;
+            border: 1px solid #d4af37;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .product-card {
+            background: linear-gradient(135deg, rgba(0,0,0,0.8) 0%, rgba(26,26,46,0.8) 100%);
+            border-radius: 15px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(212,175,55,0.3);
+        }
+
+        .product-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            border-color: #d4af37;
+        }
+
+        .product-image {
+            height: 200px;
+            background: linear-gradient(45deg, #333, #555);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #d4af37;
+            font-size: 4rem;
+        }
+
+        .product-info {
+            padding: 20px;
+        }
+
+        .product-name {
+            color: #ffffff;
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .product-specs {
+            color: rgba(255,255,255,0.7);
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+
+        .product-price {
+            color: #d4af37;
+            font-size: 1.3rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .product-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            flex: 1;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #d4af37 0%, #ffd700 100%);
+            color: #000;
+        }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.1);
+            color: #ffffff;
+            border: 1px solid rgba(255,255,255,0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .footer {
+            background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
+            margin-top: 50px;
+            padding: 40px 0 20px;
+            border-top: 2px solid #d4af37;
+        }
+
+        .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .footer-section h4 {
+            color: #d4af37;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .footer-section ul {
+            list-style: none;
+        }
+
+        .footer-section li {
+            margin-bottom: 8px;
+        }
+
+        .footer-section a {
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-section a:hover {
+            color: #d4af37;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            padding-top: 20px;
+            border-top: 1px solid rgba(212,175,55,0.3);
+            color: rgba(255,255,255,0.6);
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                grid-template-columns: 1fr;
+            }
+
+            .header-container {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .search-form {
+                min-width: 300px;
+            }
+
+            .nav-links {
+                flex-wrap: wrap;
+                gap: 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+<header class="header">
+    <div class="header-container">
+        <div class="header-left">
+            <a href="/" class="logo">
+                <h1>LND</h1>
+                <span>CAR STORE</span>
+            </a>
+
+            <form class="search-form" action="/search" method="POST">
+                <input type="text" name="search" class="search-input"
+                       placeholder="Tìm kiếm xe theo hãng, dòng xe, giá...">
+                <button type="submit" class="search-btn">🔍</button>
+            </form>
+        </div>
+
+        <nav class="header-nav">
+            <div class="nav-item">
+                <span class="nav-icon">🔔</span>
+                <div class="nav-text">
+                    <span class="nav-label">Thông báo</span>
+                    <span class="nav-value">Ưu đãi</span>
+                </div>
+            </div>
+
+            <div class="nav-item">
+                <span class="nav-icon">👤</span>
+                <div class="nav-text">
+                    <span class="nav-label">{% if current_user %}{{ current_user }}{% else %}Đăng nhập{% endif %}</span>
+                    <span class="nav-value">{% if current_user %}<a href="/logout" style="color: #d4af37;">Đăng xuất</a>{% else %}Tài khoản{% endif %}</span>
+                </div>
+            </div>
+
+            <div class="nav-item">
+                <span class="nav-icon">❤️</span>
+                <div class="nav-text">
+                    <span class="nav-label">Yêu thích</span>
+                    <span class="nav-value" id="favorite-count">{{ favorite_count or 0 }}</span>
+                </div>
+            </div>
+        </nav>
+    </div>
+</header>
+
+<nav class="nav-bar">
+    <div class="nav-container">
+        <ul class="nav-links">
+            <li><a href="#" data-brand="Mercedes-Benz">Mercedes-Benz</a></li>
+            <li><a href="#" data-brand="BMW">BMW</a></li>
+            <li><a href="#" data-brand="Audi">Audi</a></li>
+            <li><a href="#" data-brand="Lexus">Lexus</a></li>
+            <li><a href="#" data-brand="Porsche">Porsche</a></li>
+            <li><a href="#" data-brand="Bentley">Bentley</a></li>
+        </ul>
+    </div>
+</nav>
+
+<div class="main-container">
+    <aside class="sidebar">
+        <form action="/filter" method="POST">
+            <div class="sidebar-section">
+                <h3 class="sidebar-title">💰 Lọc theo giá</h3>
+                <div class="price-filter">
+                    <div class="price-inputs">
+                        <input type="number" name="min_price" class="price-input" placeholder="Từ (VND)">
+                        <input type="number" name="max_price" class="price-input" placeholder="Đến (VND)">
+                    </div>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <h3 class="sidebar-title">🚗 Hãng xe</h3>
+                <div class="checkbox-group">
+                    <label><input type="checkbox" name="brand" value="all" checked> Tất cả</label>
+                    <label><input type="checkbox" name="brand" value="Mercedes-Benz"> Mercedes-Benz</label>
+                    <label><input type="checkbox" name="brand" value="BMW"> BMW</label>
+                    <label><input type="checkbox" name="brand" value="Audi"> Audi</label>
+                    <label><input type="checkbox" name="brand" value="Lexus"> Lexus</label>
+                    <label><input type="checkbox" name="brand" value="Porsche"> Porsche</label>
+                    <label><input type="checkbox" name="brand" value="Bentley"> Bentley</label>
+                </div>
+            </div>
+
+            <div class="sidebar-section">
+                <h3 class="sidebar-title">📊 Loại xe</h3>
+                <div class="checkbox-group">
+                    <label><input type="checkbox" name="type" value="sedan"> Sedan</label>
+                    <label><input type="checkbox" name="type" value="suv"> SUV</label>
+                    <label><input type="checkbox" name="type" value="coupe"> Coupe</label>
+                    <label><input type="checkbox" name="type" value="convertible"> Convertible</label>
+                    <label><input type="checkbox" name="type" value="hatchback"> Hatchback</label>
+                </div>
+            </div>
+
+            <button type="submit" class="filter-btn">Áp dụng bộ lọc</button>
+        </form>
+    </aside>
+
+    <main class="product-section">
+        <div class="section-header">
+            <h2 class="section-title">{{ page_title or "Xe cao cấp" }}</h2>
+            <div class="sort-dropdown">
+                <button class="sort-btn" type="button">
+                    Sắp xếp theo giá ⌄
+                </button>
+            </div>
+        </div>
+
+        <div class="product-grid">
+            {% for car in cars %}
+            <div class="product-card" data-car-id="{{ car.id }}">
+                <div class="product-image">
+                    {% if car.type == 'coupe' %}🏎️
+                    {% elif car.type == 'suv' %}🚙
+                    {% elif car.brand == 'Bentley' %}👑
+                    {% elif car.brand == 'Porsche' %}🏁
+                    {% else %}🚗{% endif %}
+                </div>
+                <div class="product-info">
+                    <h3 class="product-name">{{ car.brand }} {{ car.model }}</h3>
+                    <p class="product-specs">{{ car.specs }}</p>
+                    <div class="product-price">{{ (car.price / 1000000000) | round(1) }} tỷ VND</div>
+                    <div class="product-actions">
+                        <button class="btn btn-primary">Xem chi tiết</button>
+                        <button class="btn btn-secondary favorite-btn" data-car-id="{{ car.id }}">
+                            {% if car.is_favorite %}❤️{% else %}🤍{% endif %}
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </main>
+</div>
+
+<footer class="footer">
+    <div class="footer-container">
+        <div class="footer-grid">
+            <div class="footer-section">
+                <h4>Dịch vụ khách hàng</h4>
+                <ul>
+                    <li><a href="#">Chính sách bảo hành</a></li>
+                    <li><a href="#">Dịch vụ sau bán hàng</a></li>
+                    <li><a href="#">Tư vấn mua xe</a></li>
+                    <li><a href="#">Đăng ký lái thử</a></li>
+                    <li><a href="#">Tra cứu bảo dưỡng</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-section">
+                <h4>Thông tin liên hệ</h4>
+                <ul>
+                    <li><a href="#">Hotline: 1900-xxx-xxx</a></li>
+                    <li><a href="#">Email: info@lndcarstore.com</a></li>
+                    <li><a href="#">Showroom: 123 Đường ABC, TP.HCM</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-section">
+                <h4>Hình thức thanh toán</h4>
+                <ul>
+                    <li><a href="#">💳 Visa/Mastercard</a></li>
+                    <li><a href="#">🏦 Chuyển khoản ngân hàng</a></li>
+                    <li><a href="#">💰 Thanh toán trả góp</a></li>
+                    <li><a href="#">🤝 Đổi xe cũ lấy xe mới</a></li>
+                </ul>
+            </div>
+
+            <div class="footer-section">
+                <h4>Về LND Car Store</h4>
+                <ul>
+                    <li><a href="#">Giới thiệu công ty</a></li>
+                    <li><a href="#">Tuyển dụng</a></li>
+                    <li><a href="#">Tin tức & Sự kiện</a></li>
+                    <li><a href="#">Chính sách bảo mật</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p>© 2024 LND Car Store. Tất cả quyền được bảo lưu.</p>
+            <p>Địa chỉ: 123 Đường Luxury, Quận 1, TP. Hồ Chí Minh | Hotline: 1900-xxx-xxx</p>
+        </div>
+    </div>
+</footer>
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

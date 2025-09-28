@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Khảo sát - LND Car Store</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+<div class="modal">
+    <div class="modal-content">
+        <h2>Khảo sát sở thích xe</h2>
+        <form action="/survey" method="POST">
+            <div class="form-group">
+                <label for="budget">Ngân sách (VND)</label>
+                <input type="number" name="budget" id="budget" placeholder="Ví dụ: 3000000000" required>
+            </div>
+            <div class="form-group">
+                <label for="horsepower">Công suất mong muốn (HP)</label>
+                <input type="number" name="horsepower" id="horsepower" placeholder="Ví dụ: 300" required>
+            </div>
+            <div class="form-group">
+                <label for="fuel">Mức tiêu hao nhiên liệu (L/100km)</label>
+                <input type="number" name="fuel" id="fuel" placeholder="Ví dụ: 8" required>
+            </div>
+            <div class="form-actions">
+                <button type="submit">Gửi khảo sát</button>
+                <a href="/">TRỞ VỀ</a>
+            </div>
+            {% if error %}
+            <p class="error">{{ error }}</p>
+            {% endif %}
+        </form>
+    </div>
+</div>
+</body>
+</html>
