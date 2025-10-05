@@ -1,0 +1,15 @@
+[33mae50968[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mfeat/kmeans-flask-demo[m[33m, [m[1;31morigin/feat/kmeans-flask-demo[m[33m)[m Add FinalProject (KMeans + Flask demo)
+.gitignore
+api/app.py
+data/data_cars.csv
+data/data_customers.csv
+data/data_sales.csv
+main.py
+models/cluster_centers.csv
+models/feature_order.csv
+models/kmeans.joblib
+models/scaler.joblib
+models/weights.csv
+readme.md
+requirements.txt
+src/train_cluster.py
