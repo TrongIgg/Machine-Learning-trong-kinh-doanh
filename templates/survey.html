@@ -1,37 +1,512 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Khảo sát - LND Car Store</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <title>Customer Survey | Car Store</title>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <meta name="robots" content="index,follow">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=DM+Serif+Display&display=swap"
+          rel="stylesheet"/>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-<body>
-<div class="modal">
-    <div class="modal-content">
-        <h2>Khảo sát sở thích xe</h2>
-        <form action="/survey" method="POST">
-            <div class="form-group">
-                <label for="budget">Ngân sách (VND)</label>
-                <input type="number" name="budget" id="budget" placeholder="Ví dụ: 3000000000" required>
-            </div>
-            <div class="form-group">
-                <label for="horsepower">Công suất mong muốn (HP)</label>
-                <input type="number" name="horsepower" id="horsepower" placeholder="Ví dụ: 300" required>
-            </div>
-            <div class="form-group">
-                <label for="fuel">Mức tiêu hao nhiên liệu (L/100km)</label>
-                <input type="number" name="fuel" id="fuel" placeholder="Ví dụ: 8" required>
-            </div>
-            <div class="form-actions">
-                <button type="submit">Gửi khảo sát</button>
-                <a href="/">TRỞ VỀ</a>
-            </div>
-            {% if error %}
-            <p class="error">{{ error }}</p>
-            {% endif %}
-        </form>
+<body id="survey-page-body" class="gjs-t-body cls-phw7j5">
+<header class="site-header">
+    <div class="header-container">
+        <a href="{{ url_for('index') }}" class="brand-link">
+            <span id="i8yw31" class="brand-text">LND</span>
+        </a>
+        <nav id="is9yq9" class="primary-navigation">
+            <a href="{{ url_for('index') }}" id="i8n5zs" class="gjs-t-link nav-link">Home</a>
+            <a href="{{ url_for('register') }}" id="ik6gxs" class="gjs-t-link nav-link">Register</a>
+            <a href="{{ url_for('login') }}" id="i1b9fn" class="gjs-t-link nav-link">Login</a>
+            <a href="{{ url_for('survey') }}" class="nav-link-active">Survey</a>
+        </nav>
     </div>
-</div>
+</header>
+
+<main id="id61u7" class="main-content">
+    <section class="survey-intro-section">
+        <div class="intro-wrapper">
+            <h1 id="im261k" class="gjs-t-h1 page-title">Tell us about your ideal car</h1>
+            <p class="page-subtitle">Help us match you with the best offers based on your preferences and location. This
+                takes about 2–3 minutes.</p>
+        </div>
+    </section>
+
+    <section id="iyipww" class="survey-form-section">
+        <form method="post" action="{{ url_for('survey') }}" id="ikj9kf" class="gjs-t-border survey-form">
+            <!-- Progress / Stepper -->
+            <div aria-label="Survey progress" class="msf-progress gjs-t-border">
+                <div class="msf-progress-header">
+                    <span class="gjs-t-h2">Survey progress</span>
+                    <span id="msf-step-text" class="msf-step-text">Step 1 of 3</span>
+                </div>
+                <ol aria-label="Survey steps" class="msf-steps">
+                    <li data-step-index="0" class="msf-step is-active">
+                        <img src="https://api.iconify.design/mdi:car-outline.svg?color=currentColor&width=20&height=20"
+                             alt="Desired car step"/>
+                        <span class="step-label">Desired Car</span>
+                    </li>
+                    <li data-step-index="1" class="msf-step">
+                        <img src="https://api.iconify.design/mdi:clipboard-text-outline.svg?color=currentColor&width=20&height=20"
+                             alt="Vehicle specifications step"/>
+                        <span class="step-label">Specs</span>
+                    </li>
+                    <li data-step-index="2" class="msf-step">
+                        <img src="https://api.iconify.design/mdi:account-outline.svg?color=currentColor&width=20&height=20"
+                             alt="Customer profile step"/>
+                        <span class="step-label">Profile</span>
+                    </li>
+                </ol>
+                <div aria-hidden="true" class="msf-bar">
+                    <div id="msf-bar-fill" class="msf-bar-fill"></div>
+                </div>
+            </div>
+
+            <!-- Step 1: Desired Car -->
+            <fieldset id="i299hi" class="section-desired-car-fieldset">
+                <legend id="itdtmh" class="gjs-t-h2 section-desired-car-legend">1. Demand for Desired Car</legend>
+
+                <div id="iakmox" class="body-type-group">
+                    <label for="body-types" id="ip5je7" class="body-type-label">Preferred body type(s)</label>
+                    <div id="i57l0r" class="body-type-options-grid">
+                        <label id="ibg5sj" class="body-type-option">
+                            <input type="checkbox" id="bt-sedan" name="body_types" value="Sedan"
+                                   class="body-type-checkbox"/>
+                            <span id="ik4xkb">Sedan</span>
+                        </label>
+                        <label id="i4rc9m" class="body-type-option">
+                            <input type="checkbox" id="bt-suv" name="body_types" value="SUV"
+                                   class="body-type-checkbox"/>
+                            <span id="i5tvqm">SUV</span>
+                        </label>
+                        <label id="im9enf" class="body-type-option">
+                            <input type="checkbox" id="bt-hatchback" name="body_types" value="Hatchback"
+                                   class="body-type-checkbox"/>
+                            <span id="ijs3g9">Hatchback</span>
+                        </label>
+                        <label id="im9enf-2" class="body-type-option">
+                            <input type="checkbox" id="bt-cabriolet" name="body_types" value="Cabriolet"
+                                   class="body-type-checkbox"/>
+                            <span id="ijs3g9-2">Cabriolet</span>
+                        </label>
+                        <label id="iqbsxt" class="body-type-option">
+                            <input type="checkbox" id="bt-coupe" name="body_types" value="Coupe"
+                                   class="body-type-checkbox"/>
+                            <span id="idcji7">Coupe</span>
+                        </label>
+                        <label id="ixwdbc" class="body-type-option">
+                            <input type="checkbox" id="bt-bus" name="body_types" value="Bus"
+                                   class="body-type-checkbox"/>
+                            <span id="isvqcj">Bus</span>
+                        </label>
+                        <label id="ixsml7" class="body-type-option">
+                            <input type="checkbox" id="bt-wagon" name="body_types" value="Wagon"
+                                   class="body-type-checkbox"/>
+                            <span id="imq3su">Wagon</span>
+                        </label>
+                        <label id="i4jtii" class="body-type-option">
+                            <input type="checkbox" id="bt-pickup" name="body_types" value="Pickup"
+                                   class="body-type-checkbox"/>
+                            <span id="ixpqej">Pickup</span>
+                        </label>
+                        <label id="iuslmz" class="body-type-option">
+                            <input type="checkbox" id="bt-van" name="body_types" value="Van"
+                                   class="body-type-checkbox"/>
+                            <span id="iwcbmt">Van</span>
+                        </label>
+                        <label id="ib3sc5" class="body-type-option">
+                            <input type="checkbox" id="bt-mpv" name="body_types" value="MPV"
+                                   class="body-type-checkbox"/>
+                            <span id="im3nx9">MPV</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div id="ihdm8o" class="preferred-brands-group">
+                    <label for="preferred-brands" id="iwtup3" class="preferred-brands-label">Preferred brand(s)</label>
+                    <input type="text" id="preferred-brands" name="preferred_brands"
+                           placeholder="e.g., Toyota, Honda, BMW" autocomplete="off"
+                           class="gjs-t-border preferred-brands-input"/>
+                    <small id="iiiea6" class="preferred-brands-help">List a few brands you prefer (optional).</small>
+                </div>
+
+                <div id="i1y8e9" class="budget-group">
+                    <label id="ifo6ej" class="budget-label">Budget range (USD)</label>
+                    <div id="iqdj12" class="budget-inputs-row">
+                        <div id="i2epzv" class="min-budget-field">
+                            <label for="budget-min" id="ivmni2" class="min-budget-label">Minimum</label>
+                            <input type="number" id="budget-min" name="budget_min" min="0" step="500"
+                                   placeholder="e.g., 10000" inputmode="numeric" class="gjs-t-border min-budget-input"/>
+                        </div>
+                        <div id="iiu88m" class="max-budget-field">
+                            <label for="budget-max" id="ikvnaf" class="max-budget-label">Maximum</label>
+                            <input type="number" id="budget-max" name="budget_max" min="0" step="500"
+                                   placeholder="e.g., 30000" inputmode="numeric" class="gjs-t-border max-budget-input"/>
+                        </div>
+                    </div>
+                    <small id="ixntys" class="budget-help">Enter approximate values if you're unsure.</small>
+                </div>
+
+                <div id="ierb5j" class="usage-group">
+                    <label id="ic1qdc" class="usage-label">Intended usage</label>
+                    <div id="i7mbmx" class="usage-options-grid">
+                        <label id="iiri3y" class="usage-option">
+                            <input type="radio" name="usage" value="Daily commute" id="iifqjg" class="usage-radio"/>
+                            <span id="ihpqf9">Daily commute</span>
+                        </label>
+                        <label id="i8ncon" class="usage-option">
+                            <input type="radio" name="usage" value="Family" id="i5rs82" class="usage-radio"/>
+                            <span id="ipm16d">Family</span>
+                        </label>
+                        <label id="i59gne" class="usage-option">
+                            <input type="radio" name="usage" value="Service" id="ifek79" class="usage-radio"/>
+                            <span id="im2r1l">Service</span>
+                        </label>
+                        <label id="in0nad" class="usage-option">
+                            <input type="radio" name="usage" value="Business / ride-sharing" id="ihj2sz"
+                                   class="usage-radio"/>
+                            <span id="i4hdqg">Business / ride-sharing</span>
+                        </label>
+                        <label id="ir3l3q" class="usage-option">
+                            <input type="radio" name="usage" value="Long-distance travel" id="i61l5j"
+                                   class="usage-radio"/>
+                            <span id="ijvuim">Long-distance travel</span>
+                        </label>
+                        <label id="isfaki" class="usage-option">
+                            <input type="radio" name="usage" value="Performance" id="il0n2k" class="usage-radio"/>
+                            <span id="ikkmhz">Performance</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div id="ilxhd1" class="purchase-preferences-row">
+                    <div id="i6vtih" class="timeline-field">
+                        <label for="timeline" id="ixxmk2" class="timeline-label">Purchase timeline</label>
+                        <select id="timeline" name="purchase_timeline" class="gjs-t-border timeline-select">
+                            <option value="" id="ifydca">Select timeline</option>
+                            <option value="Immediately" id="isz01j">Immediately</option>
+                            <option value="1-3 months" id="imt4gk">1–3 months</option>
+                            <option value="3-6 months" id="ij3jlp">3–6 months</option>
+                            <option value="6-12 months" id="iwpq03">6–12 months</option>
+                            <option value="Just browsing" id="ikzotp">Just browsing</option>
+                        </select>
+                    </div>
+                    <div id="iwuodw" class="condition-field">
+                        <label id="igj3ej" class="condition-label">Preference (Condition)</label>
+                        <div id="ikq1uv" class="condition-options-row">
+                            <label id="i9qb9l" class="condition-option">
+                                <input type="radio" name="condition" value="New" id="ir685n" class="condition-radio"/>
+                                <span id="ixoeqt">New</span>
+                            </label>
+                            <label id="izlvgx" class="condition-option">
+                                <input type="radio" name="condition" value="Used" id="in2dm7" class="condition-radio"/>
+                                <span id="ibo04z">Used</span>
+                            </label>
+                            <label id="iscyx3" class="condition-option">
+                                <input type="radio" name="condition" value="Either" id="i4ld36"
+                                       class="condition-radio"/>
+                                <span id="ifeqaf">Either</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </fieldset>
+
+            <hr id="specs-divider" class="section-divider"/>
+
+            <!-- Step 2: Vehicle Specifications -->
+            <fieldset id="vs-fieldset" class="vehicle-specs-fieldset">
+                <legend id="ikunay" class="gjs-t-h2 form-section-legend">2. Vehicle Specifications</legend>
+                <div id="i7pijn" class="specs-grid">
+                    <div id="ik1q01" class="spec-field">
+                        <label for="vs-electric" id="i4sqr2" class="spec-label">Is it electric?</label>
+                        <div id="vs-electric" class="inline-options">
+                            <label id="i2to9j" class="inline-option">
+                                <input type="radio" name="is_electric" value="Yes" id="iuearm"/>
+                                <span id="i9ar58">Yes</span>
+                            </label>
+                            <label id="i5vyzx" class="inline-option">
+                                <input type="radio" name="is_electric" value="No" id="ilifwi"/>
+                                <span id="ig5hq5">No</span>
+                            </label>
+                        </div>
+                    </div>
+                    <div id="iyjjpe" class="spec-field">
+                        <label for="vs-model-date" id="iemxw9" class="spec-label">Model date (Month/Year)</label>
+                        <input type="month" id="vs-model-date" name="model_date" class="gjs-t-border spec-input"/>
+                    </div>
+                    <div id="iwh21g" class="spec-field">
+                        <label for="vs-fuel-type" id="iqz4hk" class="spec-label">Fuel type</label>
+                        <select id="vs-fuel-type" name="fuel_type" class="gjs-t-border spec-select">
+                            <option value="">Select</option>
+                            <option value="Petrol">Petrol</option>
+                            <option value="Diesel">Diesel</option>
+                            <option value="Electric">Electric</option>
+                            <option value="Hybrid">Hybrid</option>
+                            <option value="CNG">CNG</option>
+                        </select>
+                    </div>
+                    <div id="if8doq" class="spec-field">
+                        <label for="vs-doors" id="ivvotk" class="spec-label">Number of doors</label>
+                        <input type="number" id="vs-doors" name="number_of_doors" min="2" max="6" step="1"
+                               placeholder="e.g., 4" inputmode="numeric" class="gjs-t-border spec-input"/>
+                    </div>
+                    <div id="it9qkg" class="spec-field">
+                        <label for="vs-gears" id="ipz9po" class="spec-label">Number of forward gears</label>
+                        <input type="number" id="vs-gears" name="forward_gears" min="1" max="10" step="1"
+                               placeholder="e.g., 6" inputmode="numeric" class="gjs-t-border spec-input"/>
+                    </div>
+                    <div id="iwnkxq" class="spec-field">
+                        <label for="vs-seats" id="io277f" class="spec-label">Seating capacity</label>
+                        <input type="number" id="vs-seats" name="seating_capacity" min="1" max="9" step="1"
+                               placeholder="e.g., 5" inputmode="numeric" class="gjs-t-border spec-input"/>
+                    </div>
+                    <div id="iqsmze" class="spec-field">
+                        <label for="vs-fuel-capacity" id="iqpiy5" class="spec-label">Fuel capacity (L)</label>
+                        <input type="number" id="vs-fuel-capacity" name="fuel_capacity_l" min="0" step="0.1"
+                               placeholder="e.g., 55" inputmode="decimal" class="gjs-t-border spec-input"/>
+                    </div>
+                    <div id="iq4vv2" class="spec-field">
+                        <label for="vs-top-speed" id="i8lm44" class="spec-label">Top speed (km/h)</label>
+                        <input type="number" id="vs-top-speed" name="top_speed_kmh" min="0" step="1"
+                               placeholder="e.g., 210" inputmode="numeric" class="gjs-t-border spec-input"/>
+                    </div>
+                    <div id="ikgr5h" class="spec-field">
+                        <label for="vs-engine-power" id="isdfkc" class="spec-label">Engine power (hp)</label>
+                        <input type="number" id="vs-engine-power" name="engine_power_hp" min="0" step="1"
+                               placeholder="e.g., 180" inputmode="numeric" class="gjs-t-border spec-input"/>
+                    </div>
+                    <div id="i3fgcy" class="spec-field">
+                        <label for="vs-total-weight" id="iqfphe" class="spec-label">Total weight (kg)</label>
+                        <input type="number" id="vs-total-weight" name="total_weight_kg" min="0" step="1"
+                               placeholder="e.g., 1800" inputmode="numeric" class="gjs-t-border spec-input"/>
+                    </div>
+                    <div id="iljm2i" class="spec-field">
+                        <label for="vs-payload" id="idc0qv" class="spec-label">Payload (kg)</label>
+                        <input type="number" id="vs-payload" name="payload_kg" min="0" step="1" placeholder="e.g., 500"
+                               inputmode="numeric" class="gjs-t-border spec-input"/>
+                    </div>
+                    <div id="i9facl" class="spec-field">
+                        <label for="vs-co2" id="i9x3oh" class="spec-label">CO₂ emissions (g/km)</label>
+                        <input type="number" id="vs-co2" name="co2_emissions_g_km" min="0" step="1"
+                               placeholder="e.g., 120" inputmode="numeric" class="gjs-t-border spec-input"/>
+                    </div>
+                </div>
+                <small id="i44zom" class="hint">Provide approximate values if exact figures are unknown.</small>
+            </fieldset>
+
+            <hr id="profile-divider" class="section-divider"/>
+
+            <!-- Step 3: Customer Profile -->
+            <fieldset id="cp-fieldset" class="customer-profile-fieldset">
+                <legend id="i705d6" class="gjs-t-h2 form-section-legend">3. Customer Profile</legend>
+                <div id="iuecw5" class="profile-grid">
+                    <div id="i7irhj" class="profile-field">
+                        <label for="cp-age" id="iixny1" class="profile-label">Age</label>
+                        <input type="number" id="cp-age" name="age" min="18" max="100" step="1" placeholder="e.g., 34"
+                               inputmode="numeric" class="gjs-t-border profile-input"/>
+                    </div>
+                    <div id="ib5uch" class="profile-field">
+                        <label for="cp-gender" id="ismajz" class="profile-label">Gender</label>
+                        <select id="cp-gender" name="gender" class="gjs-t-border profile-select">
+                            <option value="">Select</option>
+                            <option value="Female">Female</option>
+                            <option value="Male">Male</option>
+                            <option value="Non-binary">Non-binary</option>
+                            <option value="Prefer not to say">Prefer not to say</option>
+                        </select>
+                    </div>
+                    <div id="ir3ubt" class="profile-field">
+                        <label for="cp-income" id="i3dq7f" class="profile-label">Annual income (USD)</label>
+                        <input type="number" id="cp-income" name="income_usd" min="0" step="1000"
+                               placeholder="e.g., 80000" inputmode="numeric" class="gjs-t-border profile-input"/>
+                    </div>
+                    <div id="ilri5k" class="profile-field">
+                        <label for="cp-loyalty" id="ijzru7" class="profile-label">Loyalty score (0–10)</label>
+                        <div id="i4ttl5" class="range-row">
+                            <input type="range" id="cp-loyalty" name="loyalty_score" min="0" max="10" step="1" value="5"
+                                   class="profile-input"/>
+                            <span id="cp-loyalty-output" class="range-output">5</span>
+                        </div>
+                        <small id="ieq7mj" class="hint">How likely are you to buy from us again?</small>
+                    </div>
+                    <div id="ipornp" class="profile-field">
+                        <label for="cp-location" id="i9vu8t" class="profile-label">Location</label>
+                        <input type="text" id="cp-location" name="location"
+                               placeholder="City, Country (e.g., Austin, USA)" autocomplete="off"
+                               class="gjs-t-border profile-input"/>
+                    </div>
+                    <div id="ial2yx" class="profile-field">
+                        <label for="cp-ownership" id="irs5zu" class="profile-label">Previous car ownership</label>
+                        <select id="cp-ownership" name="previous_car_ownership" class="gjs-t-border profile-select">
+                            <option value="">Select</option>
+                            <option value="First-time buyer">No, first-time buyer</option>
+                            <option value="Owned before">Yes, owned before</option>
+                        </select>
+                    </div>
+                    <div id="iegtqc" class="profile-field">
+                        <label for="cp-purpose" id="i2ov5a" class="profile-label">Purpose of buying</label>
+                        <select id="cp-purpose" name="purpose_of_buying" class="gjs-t-border profile-select">
+                            <option value="">Select</option>
+                            <option value="Commute">Commute</option>
+                            <option value="Family">Family</option>
+                            <option value="Business">Business</option>
+                            <option value="Ride-sharing">Ride-sharing</option>
+                            <option value="Performance">Performance</option>
+                            <option value="Off-road">Off-road</option>
+                            <option value="Long-distance travel">Long-distance travel</option>
+                            <option value="First car">First car</option>
+                            <option value="Upgrade">Upgrade</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div id="iyobdk" class="profile-field">
+                        <label for="cp-preference" id="ivk4pl" class="profile-label">Preference</label>
+                        <select id="cp-preference" name="preference" class="gjs-t-border profile-select">
+                            <option value="">Select</option>
+                            <option value="New">New</option>
+                            <option value="Used">Used</option>
+                            <option value="Either">Either</option>
+                        </select>
+                    </div>
+                </div>
+            </fieldset>
+
+            <!-- Consent + Actions -->
+            <div id="i8uzcc" class="consent-group">
+                <input type="checkbox" id="contact-consent" name="contact_consent" class="consent-checkbox"/>
+                <label for="contact-consent" id="i9f3sx" class="consent-label">I agree to be contacted about relevant
+                    offers based on my preferences.</label>
+            </div>
+
+            <div id="idcx8i" class="form-actions-row">
+                <a href="{{ url_for('index') }}" id="i2a4br" class="gjs-t-link secondary-action-link">Back to Home</a>
+                <div class="msf-actions">
+                    <button type="button" aria-label="Go to previous step" id="i0j9g5" class="msf-prev is-hidden">
+                        Previous
+                    </button>
+                    <button type="button" aria-label="Go to next step" id="ih8p2a"
+                            class="gjs-t-button submit-button msf-next">Next
+                    </button>
+                    <button type="submit" id="im34an" class="gjs-t-button submit-button msf-submit is-hidden">Submit
+                        Survey
+                    </button>
+                </div>
+            </div>
+
+            <div id="iol8m9" class="gjs-t-border privacy-notice">
+                <p id="i1ww21" class="privacy-text">We respect your privacy. Your responses help us personalize
+                    recommendations and won't be shared without your consent.</p>
+            </div>
+        </form>
+
+        <!-- Multi-step JavaScript -->
+        <script>
+            (function () {
+                var slider = document.getElementById('cp-loyalty');
+                var out = document.getElementById('cp-loyalty-output');
+                if (slider && out) {
+                    var update = function () { out.textContent = slider.value; };
+                    slider.addEventListener('input', update);
+                    update();
+                }
+
+                var form = document.getElementById('ikj9kf');
+                if (!form) return;
+
+                var steps = [
+                    document.getElementById('i299hi'),
+                    document.getElementById('vs-fieldset'),
+                    document.getElementById('cp-fieldset')
+                ];
+                var dividers = [
+                    document.getElementById('specs-divider'),
+                    document.getElementById('profile-divider')
+                ];
+                var consentGroup = document.getElementById('i8uzcc');
+                var privacyNotice = document.getElementById('iol8m9');
+
+                var prevBtn = form.querySelector('.msf-prev');
+                var nextBtn = form.querySelector('.msf-next');
+                var submitBtn = form.querySelector('.msf-submit');
+
+                var stepText = document.getElementById('msf-step-text');
+                var barFill = document.getElementById('msf-bar-fill');
+                var stepItems = Array.prototype.slice.call(form.querySelectorAll('.msf-step'));
+
+                var current = 0;
+                var total = steps.length;
+
+                function showStep(index) {
+                    current = Math.max(0, Math.min(index, total - 1));
+
+                    steps.forEach(function (el, i) {
+                        el.style.display = i === current ? '' : 'none';
+                    });
+
+                    if (dividers[0]) dividers[0].style.display = current === 0 ? '' : 'none';
+                    if (dividers[1]) dividers[1].style.display = current === 1 ? '' : 'none';
+
+                    if (consentGroup) consentGroup.style.display = current === total - 1 ? '' : 'none';
+                    if (privacyNotice) privacyNotice.style.display = current === total - 1 ? '' : 'none';
+
+                    if (prevBtn) prevBtn.classList.toggle('is-hidden', current === 0);
+                    if (nextBtn) nextBtn.classList.toggle('is-hidden', current === total - 1);
+                    if (submitBtn) submitBtn.classList.toggle('is-hidden', current !== total - 1);
+
+                    if (stepText) stepText.textContent = 'Step ' + (current + 1) + ' of ' + total;
+                    if (barFill) barFill.style.width = ((current + 1) / total * 100).toFixed(2) + '%';
+
+                    stepItems.forEach(function (item, i) {
+                        if (i === current) item.classList.add('is-active');
+                        else item.classList.remove('is-active');
+                    });
+                }
+
+                function goNext() { showStep(current + 1); }
+                function goPrev() { showStep(current - 1); }
+
+                if (nextBtn) nextBtn.addEventListener('click', goNext);
+                if (prevBtn) prevBtn.addEventListener('click', goPrev);
+
+                form.addEventListener('submit', function (e) {
+                    if (current < total - 1) {
+                        e.preventDefault();
+                        goNext();
+                    }
+                });
+
+                form.addEventListener('keydown', function (e) {
+                    var key = e.key || e.keyCode;
+                    if ((key === 'Enter' || key === 13) && current < total - 1) {
+                        e.preventDefault();
+                        goNext();
+                    }
+                });
+
+                stepItems.forEach(function (item, i) {
+                    item.style.cursor = 'pointer';
+                    item.addEventListener('click', function () {
+                        showStep(i);
+                    });
+                });
+
+                showStep(0);
+            })();
+        </script>
+    </section>
+</main>
+
+<footer class="site-footer">
+    <div class="footer-container">
+        <p class="footer-copyright">© 2025 Car Store. All rights reserved.</p>
+        <nav class="footer-navigation">
+            <a href="{{ url_for('index') }}" class="gjs-t-link footer-nav-link">Home</a>
+            <a href="{{ url_for('login') }}" class="gjs-t-link footer-nav-link">Login</a>
+            <a href="{{ url_for('register') }}" class="gjs-t-link footer-nav-link">Register</a>
+        </nav>
+    </div>
+</footer>
 </body>
 </html>
