@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng nhập - LND Car Store</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+</head>
+<body>
+<div class="modal">
+    <div class="modal-content">
+        <h2>Đăng nhập</h2>
+        <form action="/login" method="POST">
+            <div class="form-group">
+                <label for="username">Tên đăng nhập</label>
+                <input type="text" name="username" id="username" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Mật khẩu</label>
+                <input type="password" name="password" id="password" required>
+            </div>
+            <div class="form-actions">
+                <button type="submit">ĐĂNG NHẬP</button>
+                <a href="/register">Đăng ký</a>
+                <a href="/">TRỞ VỀ</a>
+            </div>
+            {% if error %}
+            <p class="error">{{ error }}</p>
+            {% endif %}
+        </form>
+    </div>
+</div>
+</body>
+</html>
