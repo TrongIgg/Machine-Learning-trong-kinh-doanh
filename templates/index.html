@@ -131,7 +131,111 @@
             </div>
         </div>
     </section>
+    <!-- Recommended Cars Section - CHỈ HIỂN THỊ KHI CÓ KHẢO SÁT -->
+    {% if survey_completed and recommended_cars %}
+    <section style="background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); padding: 40px 20px; margin: 20px 0;">
+        <div class="listings-container">
+            <!-- Banner -->
+            <div class="recommendation-banner" style="margin-bottom: 30px;">
+                <h2>🎯 Top 6 xe phù hợp nhất với bạn</h2>
+                <p style="margin: 10px 0; font-size: 16px;">
+                    Dựa trên khảo sát:
+                    {% if session.survey_data.body_types %}
+                    <strong>{{ session.survey_data.body_types|join(', ') }}</strong>
+                    {% endif %}
+                </p>
+                <div class="match-score">
+                    Budget: ${{ "{:,}".format(session.survey_data.budget_min|int) }} - ${{
+                    "{:,}".format(session.survey_data.budget_max|int) }}
+                </div>
+            </div>
 
+            <!-- Grid hiển thị xe -->
+            <div class="listings-grid">
+                {% for car in recommended_cars %}
+                <article class="gjs-t-border car-card"
+                         style="border: 3px solid #4CAF50; box-shadow: 0 5px 15px rgba(76,175,80,0.3);">
+                    <!-- Badge điểm match -->
+                    <span class="recommended-badge"
+                          style="background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);">
+                    ✨ {{ (car.final_score * 100)|int }}% Match
+                </span>
+
+                    <div class="car-image-container">
+                        <img loading="lazy"
+                             src="{{ url_for('static', filename=car.image_path) }}"
+                             alt="{{ car.brand }} {{ car.model }}"
+                             width="600" height="400"
+                             class="car-image"
+                             onerror="this.src='{{ url_for('static', filename='img/default.jpg') }}'"/>
+                    </div>
+
+                    <div class="car-card-body">
+                        <h3 class="car-model">{{ car.brand }} {{ car.model }}</h3>
+
+                        <p class="car-description">
+                            {% if car.bodytype %}{{ car.bodytype|title }}{% endif %}
+                            {% if car.fueltype %}| {{ car.fueltype|title }}{% endif %}
+                            {% if car.veenginepower and car.veenginepower > 0 %}| {{ car.veenginepower|int }} HP{% endif
+                            %}
+                        </p>
+
+                        <!-- Giá -->
+                        <div class="car-price-row" style="margin-bottom: 10px;">
+                        <span class="car-price" style="font-size: 24px; color: #4CAF50;">
+                            ${{ "{:,}".format((car.price * 1000)|int) }}
+                        </span>
+                            <button onclick='showCarInfo({{ car|tojson }})'
+                                    class="gjs-t-button car-details-button"
+                                    style="border: none; cursor: pointer;">
+                                Chi tiết
+                            </button>
+                        </div>
+
+                        <!-- LÝ DO NÊN CHỌN -->
+                        <div style="background: #f0f8ff; padding: 10px; border-radius: 8px; margin-top: 10px; border-left: 3px solid #4CAF50;">
+                            <strong style="color: #333; font-size: 14px;">💡 Tại sao phù hợp?</strong>
+                            <ul style="margin: 5px 0 0 0; padding-left: 20px; font-size: 13px; color: #555;">
+                                {% if car.rule_score > 0.8 %}
+                                <li>Đáp ứng {{ (car.rule_score * 100)|int }}% tiêu chí của bạn</li>
+                                {% endif %}
+
+                                {% if session.survey_data.body_types and car.bodytype|lower in
+                                (session.survey_data.body_types|map('lower')|list) %}
+                                <li>Đúng loại xe bạn muốn ({{ car.bodytype }})</li>
+                                {% endif %}
+
+                                {% if session.survey_data.budget_min <= car.price <= session.survey_data.budget_max %}
+                                <li>Trong tầm ngân sách của bạn</li>
+                                {% endif %}
+
+                                {% if car.knn_score > 0.7 %}
+                                <li>Thông số kỹ thuật gần với mong muốn</li>
+                                {% endif %}
+
+                                {% if session.survey_data.preferred_brands and car.brand|lower in
+                                (session.survey_data.preferred_brands|map('lower')|list) %}
+                                <li>Thương hiệu bạn ưa thích ({{ car.brand }})</li>
+                                {% endif %}
+                            </ul>
+                        </div>
+
+                        <!-- Breakdown điểm số (optional - có thể ẩn) -->
+                        <details style="margin-top: 8px; font-size: 12px; color: #666;">
+                            <summary style="cursor: pointer;">📊 Xem chi tiết điểm</summary>
+                            <div style="padding: 5px 0;">
+                                <div>• Phù hợp tiêu chí: {{ (car.rule_score * 100)|int }}%</div>
+                                <div>• Độ gần specs: {{ (car.knn_score * 100)|int }}%</div>
+                                <div>• Tổng điểm: <strong>{{ (car.final_score * 100)|int }}%</strong></div>
+                            </div>
+                        </details>
+                    </div>
+                </article>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+    {% endif %}
     <!-- Car Listings Section - DYNAMIC -->
     <section id="listings" class="car-listings-section">
         <div id="id0wx" class="listings-container">

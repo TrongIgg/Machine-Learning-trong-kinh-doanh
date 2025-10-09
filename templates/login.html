@@ -57,6 +57,11 @@
                         <a href="{{ url_for('register') }}" class="gjs-t-link">Register</a>
                     </div>
                 </form>
+                {% if error %}
+                <div style="background: #fee; color: #c33; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #c33;">
+                    {{ error }}
+                </div>
+                {% endif %}
             </div>
         </div>
 

@@ -61,7 +61,11 @@
 
                 <button type="submit" class="gjs-t-button register-submit-button">Register</button>
             </form>
-
+            {% if error %}
+            <div style="background: #fee; color: #c33; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #c33;">
+                {{ error }}
+            </div>
+            {% endif %}
             <div class="login-prompt">
                 <p class="login-prompt-text">
                     Already have an account?
