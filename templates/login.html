@@ -1,34 +1,108 @@
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Đăng nhập - LND Car Store</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <title>Login | Car Store</title>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <meta name="robots" content="index,follow">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Source+Sans+3:wght@400;600&display=swap"
+          rel="stylesheet"/>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
-<body>
-<div class="modal">
-    <div class="modal-content">
-        <h2>Đăng nhập</h2>
-        <form action="/login" method="POST">
-            <div class="form-group">
-                <label for="username">Tên đăng nhập</label>
-                <input type="text" name="username" id="username" required>
+<body id="iuo3ng" class="gjs-t-body cls-2ir992">
+<header class="site-header">
+    <nav class="primary-navigation">
+        <a href="{{ url_for('index') }}" class="gjs-t-link brand-link">
+            <span id="ikl8wl">LND</span>
+        </a>
+        <ul class="navigation-list">
+            <li><a href="{{ url_for('index') }}" class="gjs-t-link">Home</a></li>
+            <li><a href="{{ url_for('index') }}#listings" class="gjs-t-link">Cars</a></li>
+            <li><a href="{{ url_for('login') }}" class="gjs-t-link">Login</a></li>
+        </ul>
+    </nav>
+</header>
+
+<main id="ium7ik" class="main-content">
+    <section class="login-section">
+        <div class="gjs-t-border card-container">
+            <div class="card-body">
+                <div class="heading-group">
+                    <h1 class="gjs-t-h1 page-title">Login</h1>
+                    <p class="page-subtitle">
+                        Access your account securely to manage your profile and preferences.
+                    </p>
+                </div>
+
+                <form method="post" action="{{ url_for('login') }}" class="login-form">
+                    <div class="field-group-email">
+                        <label for="email" class="label-email">Email</label>
+                        <input type="email" id="email" name="email" required autocomplete="email"
+                               placeholder="you@example.com" class="gjs-t-border input-email"/>
+                    </div>
+
+                    <div class="field-group-password">
+                        <label for="password" class="label-password">Password</label>
+                        <input type="password" id="password" name="password" required autocomplete="current-password"
+                               placeholder="Your password" class="gjs-t-border input-password"/>
+                    </div>
+
+                    <div class="actions-row">
+                        <a href="#forgot" class="gjs-t-link">Forgot password?</a>
+                        <button type="submit" class="gjs-t-button login-submit-button">Login</button>
+                    </div>
+
+                    <div class="register-prompt-row">
+                        <span class="register-prompt-text">New here?</span>
+                        <a href="{{ url_for('register') }}" class="gjs-t-link">Register</a>
+                    </div>
+                </form>
+                {% if error %}
+                <div style="background: #fee; color: #c33; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #c33;">
+                    {{ error }}
+                </div>
+                {% endif %}
             </div>
-            <div class="form-group">
-                <label for="password">Mật khẩu</label>
-                <input type="password" name="password" id="password" required>
+        </div>
+
+        <!-- Forgot Password Section -->
+        <section id="forgot" class="forgot-password-section">
+            <div class="gjs-t-border forgot-password-card">
+                <h2 class="gjs-t-h2 forgot-password-title">Reset your password</h2>
+                <p class="forgot-password-description">
+                    Enter your account email and we'll send you a link to reset your password.
+                </p>
+
+                <form method="post" action="{{ url_for('login') }}" class="forgot-password-form">
+                    <div class="field-group-reset-email">
+                        <label for="reset-email" class="label-reset-email">Email</label>
+                        <input type="email" id="reset-email" name="reset_email" required autocomplete="email"
+                               placeholder="you@example.com" class="gjs-t-border input-reset-email"/>
+                    </div>
+
+                    <div class="reset-actions-row">
+                        <a href="{{ url_for('login') }}" class="gjs-t-link">Back to login</a>
+                        <button type="submit" class="gjs-t-button send-reset-link-button">Send reset link</button>
+                    </div>
+                </form>
             </div>
-            <div class="form-actions">
-                <button type="submit">ĐĂNG NHẬP</button>
-                <a href="/register">Đăng ký</a>
-                <a href="/">TRỞ VỀ</a>
-            </div>
-            {% if error %}
-            <p class="error">{{ error }}</p>
-            {% endif %}
-        </form>
+        </section>
+    </section>
+</main>
+
+<footer class="site-footer">
+    <div id="ijod9g" class="footer-container">
+        <div class="footer-content-row">
+            <span id="i67cfj" class="footer-brand-text">LND store</span>
+            <ul id="iwetwh" class="footer-links-list">
+                <li><a href="{{ url_for('index') }}" class="gjs-t-link">Home</a></li>
+                <li><a href="{{ url_for('login') }}" class="gjs-t-link">Login</a></li>
+            </ul>
+        </div>
+        <div class="footer-meta-row">
+            <small class="footer-copyright-text">© 2025 Car Store. All rights reserved.</small>
+        </div>
     </div>
-</div>
+</footer>
 </body>
 </html>

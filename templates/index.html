@@ -3,664 +3,521 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LND Car Store | Showroom Xe Sang</title>
-    <link rel="icon"
-          href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🚗</text></svg>">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <title>Trang chủ | Car Store</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-            color: #ffffff;
-            line-height: 1.6;
-        }
-
-        .header {
-            background: linear-gradient(135deg, #000000 0%, #1a1a1a 50%, #2c2c2c 100%);
-            padding: 15px 0;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
-            border-bottom: 2px solid #d4af37;
-        }
-
-        .header-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 0 20px;
-        }
-
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 30px;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            text-decoration: none;
-            color: #d4af37;
-        }
-
-        .logo h1 {
-            font-size: 2.5rem;
-            font-weight: bold;
-            letter-spacing: 2px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-        }
-
-        .logo span {
-            color: #ffffff;
-            font-size: 1rem;
-            margin-left: 10px;
-        }
-
-        .search-form {
-            position: relative;
-            min-width: 400px;
-        }
-
-        .search-input {
-            width: 100%;
-            padding: 12px 50px 12px 20px;
-            border: 2px solid #d4af37;
-            border-radius: 25px;
-            background: rgba(255,255,255,0.1);
-            color: #ffffff;
-            font-size: 14px;
-            backdrop-filter: blur(10px);
-        }
-
-        .search-input::placeholder {
-            color: rgba(255,255,255,0.7);
-        }
-
-        .search-btn {
-            position: absolute;
-            right: 5px;
-            top: 50%;
-            transform: translateY(-50%);
-            background: #d4af37;
-            border: none;
-            padding: 8px 15px;
-            border-radius: 20px;
-            color: #000;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .search-btn:hover {
-            background: #ffd700;
-            transform: translateY(-50%) scale(1.05);
-        }
-
-        .header-nav {
-            display: flex;
-            align-items: center;
-            gap: 30px;
-        }
-
-        .nav-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            cursor: pointer;
-            padding: 10px 15px;
-            border-radius: 8px;
-            transition: all 0.3s ease;
-            background: rgba(255,255,255,0.05);
-        }
-
-        .nav-item:hover {
-            background: rgba(212,175,55,0.2);
-            transform: translateY(-2px);
-        }
-
-        .nav-icon {
-            font-size: 1.2rem;
-            color: #d4af37;
-        }
-
-        .nav-text {
-            display: flex;
-            flex-direction: column;
-        }
-
-        .nav-label {
-            font-size: 0.8rem;
-            color: rgba(255,255,255,0.7);
-        }
-
-        .nav-value {
-            font-weight: 600;
-            color: #ffffff;
-        }
-
-        .nav-bar {
-            background: rgba(0,0,0,0.3);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid rgba(212,175,55,0.3);
-        }
-
-        .nav-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-
-        .nav-links {
-            display: flex;
-            list-style: none;
-            gap: 40px;
-            padding: 15px 0;
-        }
-
-        .nav-links a {
-            color: #ffffff;
-            text-decoration: none;
-            font-weight: 500;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: all 0.3s ease;
-            position: relative;
-        }
-
-        .nav-links a:hover {
-            color: #d4af37;
-        }
-
-        .nav-links a::after {
-            content: '';
-            position: absolute;
-            bottom: -5px;
-            left: 0;
-            width: 0;
-            height: 2px;
-            background: #d4af37;
-            transition: width 0.3s ease;
-        }
-
-        .nav-links a:hover::after {
-            width: 100%;
-        }
-
-        .main-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 30px 20px;
-            display: grid;
-            grid-template-columns: 300px 1fr;
-            gap: 30px;
-        }
-
-        .sidebar {
-            background: linear-gradient(135deg, rgba(0,0,0,0.6) 0%, rgba(26,26,46,0.8) 100%);
-            padding: 25px;
-            border-radius: 15px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(212,175,55,0.3);
-            height: fit-content;
-        }
-
-        .sidebar-section {
-            margin-bottom: 30px;
-        }
-
-        .sidebar-title {
-            color: #d4af37;
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .price-filter {
-            margin-bottom: 20px;
-        }
-
-        .price-inputs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-
-        .price-input {
-            flex: 1;
-            padding: 8px 12px;
-            border: 1px solid rgba(212,175,55,0.5);
-            border-radius: 8px;
-            background: rgba(255,255,255,0.1);
-            color: #ffffff;
-            font-size: 14px;
-        }
-
-        .checkbox-group label {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 10px;
-            cursor: pointer;
-            color: rgba(255,255,255,0.9);
-            transition: color 0.3s ease;
-        }
-
-        .checkbox-group label:hover {
-            color: #d4af37;
-        }
-
-        .checkbox-group input[type="checkbox"] {
-            accent-color: #d4af37;
-        }
-
-        .filter-btn {
-            width: 100%;
-            padding: 12px;
-            background: linear-gradient(135deg, #d4af37 0%, #ffd700 100%);
-            color: #000;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-        }
-
-        .filter-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(212,175,55,0.3);
-        }
-
-        .product-section {
-            background: rgba(0,0,0,0.3);
-            border-radius: 15px;
-            padding: 25px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(212,175,55,0.3);
-        }
-
-        .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 25px;
-        }
-
-        .section-title {
-            color: #d4af37;
-            font-size: 1.5rem;
-            font-weight: 600;
-        }
-
-        .sort-dropdown {
-            position: relative;
-        }
-
-        .sort-btn {
-            background: rgba(212,175,55,0.2);
-            color: #ffffff;
-            border: 1px solid #d4af37;
-            padding: 10px 20px;
-            border-radius: 8px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .product-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 25px;
-            margin-bottom: 30px;
-        }
-
-        .product-card {
-            background: linear-gradient(135deg, rgba(0,0,0,0.8) 0%, rgba(26,26,46,0.8) 100%);
-            border-radius: 15px;
-            overflow: hidden;
-            transition: all 0.3s ease;
-            border: 1px solid rgba(212,175,55,0.3);
-        }
-
-        .product-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-            border-color: #d4af37;
-        }
-
-        .product-image {
-            height: 200px;
-            background: linear-gradient(45deg, #333, #555);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #d4af37;
-            font-size: 4rem;
-        }
-
-        .product-info {
+        /* Thêm styles cho recommendation banner */
+        .recommendation-banner {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
             padding: 20px;
-        }
-
-        .product-name {
-            color: #ffffff;
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-
-        .product-specs {
-            color: rgba(255,255,255,0.7);
-            font-size: 0.9rem;
-            margin-bottom: 15px;
-        }
-
-        .product-price {
-            color: #d4af37;
-            font-size: 1.3rem;
-            font-weight: bold;
-            margin-bottom: 15px;
-        }
-
-        .product-actions {
-            display: flex;
-            gap: 10px;
-        }
-
-        .btn {
-            padding: 10px 20px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 500;
-            transition: all 0.3s ease;
-            flex: 1;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #d4af37 0%, #ffd700 100%);
-            color: #000;
-        }
-
-        .btn-secondary {
-            background: rgba(255,255,255,0.1);
-            color: #ffffff;
-            border: 1px solid rgba(255,255,255,0.3);
-        }
-
-        .btn:hover {
-            transform: translateY(-2px);
-        }
-
-        .footer {
-            background: linear-gradient(135deg, #000000 0%, #1a1a1a 100%);
-            margin-top: 50px;
-            padding: 40px 0 20px;
-            border-top: 2px solid #d4af37;
-        }
-
-        .footer-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-
-        .footer-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 30px;
-            margin-bottom: 30px;
-        }
-
-        .footer-section h4 {
-            color: #d4af37;
-            margin-bottom: 15px;
-            font-size: 1.1rem;
-        }
-
-        .footer-section ul {
-            list-style: none;
-        }
-
-        .footer-section li {
-            margin-bottom: 8px;
-        }
-
-        .footer-section a {
-            color: rgba(255,255,255,0.8);
-            text-decoration: none;
-            transition: color 0.3s ease;
-        }
-
-        .footer-section a:hover {
-            color: #d4af37;
-        }
-
-        .footer-bottom {
+            border-radius: 10px;
+            margin: 20px 0;
             text-align: center;
-            padding-top: 20px;
-            border-top: 1px solid rgba(212,175,55,0.3);
-            color: rgba(255,255,255,0.6);
         }
-
-        @media (max-width: 768px) {
-            .main-container {
-                grid-template-columns: 1fr;
-            }
-
-            .header-container {
-                flex-direction: column;
-                gap: 20px;
-            }
-
-            .search-form {
-                min-width: 300px;
-            }
-
-            .nav-links {
-                flex-wrap: wrap;
-                gap: 20px;
-            }
+        .recommendation-banner h2 {
+            margin: 0 0 10px 0;
+            font-size: 24px;
+        }
+        .match-score {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        .car-card {
+            position: relative;
+        }
+        .recommended-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #4CAF50;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            font-weight: bold;
+            z-index: 10;
         }
     </style>
 </head>
-
-<body>
-<header class="header">
-    <div class="header-container">
-        <div class="header-left">
-            <a href="/" class="logo">
-                <h1>LND</h1>
-                <span>CAR STORE</span>
-            </a>
-
-            <form class="search-form" action="/search" method="POST">
-                <input type="text" name="search" class="search-input"
-                       placeholder="Tìm kiếm xe theo hãng, dòng xe, giá...">
-                <button type="submit" class="search-btn">🔍</button>
-            </form>
+<body id="home" class="gjs-t-body cls-ych1rt">
+<header id="ibeuw" class="site-header">
+    <nav id="ikh2o" class="navbar">
+        <a href="{{ url_for('index') }}" id="i9u09" class="brand-link">
+            <div id="idkk7" class="brand-mark"><span id="i9s6l" class="brand-initials">CS</span></div>
+            <span id="inlwl" class="brand-name">LND</span>
+        </a>
+        <ul id="isqqf" class="desktop-nav-links">
+            <li id="i8qle"><a href="{{ url_for('index') }}" id="iycwh" class="gjs-t-link nav-link-home">Trang chủ</a>
+            </li>
+            <li id="isxlt"><a href="{{ url_for('index') }}#listings" id="i78jj"
+                              class="gjs-t-link nav-link-inventory">Xe</a></li>
+            <li id="ikqaw"><a href="{{ url_for('index') }}#contact" id="i0o0e" class="gjs-t-link nav-link-contact">Liên
+                hệ</a></li>
+        </ul>
+        <div id="i247d" class="desktop-nav-cta">
+            <a href="{{ url_for('index') }}#listings" id="iwqhi" class="gjs-t-button primary-cta-button">Xem xe</a>
         </div>
-
-        <nav class="header-nav">
-            <div class="nav-item">
-                <span class="nav-icon">🔔</span>
-                <div class="nav-text">
-                    <span class="nav-label">Thông báo</span>
-                    <span class="nav-value">Ưu đãi</span>
+        <div id="login-cart-buttons" aria-label="Account and shopping actions">
+            {% if user_logged_in %}
+            <div style="position: relative; display: inline-block;">
+                <button id="user-menu-btn"
+                        style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 500;">
+                    👤 {{ user_name }}
+                </button>
+                <div id="user-dropdown"
+                     style="display: none; position: absolute; top: 50px; right: 0; background: white; border-radius: 10px; box-shadow: 0 5px 20px rgba(0,0,0,0.2); min-width: 200px; z-index: 1000;">
+                    <a href="{{ url_for('survey') }}"
+                       style="display: block; padding: 12px 20px; color: #333; text-decoration: none; border-bottom: 1px solid #eee;">Khảo
+                        sát</a>
+                    <a href="{{ url_for('logout') }}"
+                       style="display: block; padding: 12px 20px; color: #e74c3c; text-decoration: none;">Đăng xuất</a>
                 </div>
             </div>
-
-            <div class="nav-item">
-                <span class="nav-icon">👤</span>
-                <div class="nav-text">
-                    <span class="nav-label">{% if current_user %}{{ current_user }}{% else %}Đăng nhập{% endif %}</span>
-                    <span class="nav-value">{% if current_user %}<a href="/logout" style="color: #d4af37;">Đăng xuất</a>{% else %}Tài khoản{% endif %}</span>
-                </div>
-            </div>
-
-            <div class="nav-item">
-                <span class="nav-icon">❤️</span>
-                <div class="nav-text">
-                    <span class="nav-label">Yêu thích</span>
-                    <span class="nav-value" id="favorite-count">{{ favorite_count or 0 }}</span>
-                </div>
-            </div>
-        </nav>
-    </div>
+            {% else %}
+            <a href="{{ url_for('login') }}" id="itioq6" class="gjs-t-button lcb-btn lcb-login-button">Đăng nhập</a>
+            {% endif %}
+            <a href="#checkout" aria-label="Giỏ hàng" id="iqnrtd" class="gjs-t-button lcb-btn lcb-cart-button">
+                <img src="https://cdn.grapesjs.com/workspaces/cmg4lzb1x0yadjsx3aod02odv/assets/6ea0a7b6-3878-4c21-a80a-f34b2f790030__172526pricetagicon.png"
+                     alt="Giỏ hàng" id="iitfac" class="lcb-cart-icon"/>
+            </a>
+        </div>
+    </nav>
 </header>
 
-<nav class="nav-bar">
-    <div class="nav-container">
-        <ul class="nav-links">
-            <li><a href="#" data-brand="Mercedes-Benz">Mercedes-Benz</a></li>
-            <li><a href="#" data-brand="BMW">BMW</a></li>
-            <li><a href="#" data-brand="Audi">Audi</a></li>
-            <li><a href="#" data-brand="Lexus">Lexus</a></li>
-            <li><a href="#" data-brand="Porsche">Porsche</a></li>
-            <li><a href="#" data-brand="Bentley">Bentley</a></li>
-        </ul>
-    </div>
-</nav>
+<main id="ijjnn">
+    <section id="iwqy4" class="hero-section">
+        <div id="irihi" class="hero-content">
+            <h1 id="iu5wd" class="gjs-t-h1 hero-title">Tìm Xe Mơ Ước Của Bạn</h1>
+            <p id="i12wz" class="hero-subtitle">Khám phá bộ sưu tập xe sedan, SUV và xe thể thao được chọn lọc kỹ
+                càng.</p>
 
-<div class="main-container">
-    <aside class="sidebar">
-        <form action="/filter" method="POST">
-            <div class="sidebar-section">
-                <h3 class="sidebar-title">💰 Lọc theo giá</h3>
-                <div class="price-filter">
-                    <div class="price-inputs">
-                        <input type="number" name="min_price" class="price-input" placeholder="Từ (VND)">
-                        <input type="number" name="max_price" class="price-input" placeholder="Đến (VND)">
+            <!-- Search Block -->
+            <section id="hero-search-block" aria-label="Tìm kiếm xe">
+                <div class="hsb-head"><h2 id="io99g9" class="gjs-t-h2">Tìm kiếm xe</h2></div>
+                <form method="get" id="hsb-search-form" role="search" class="hsb-form">
+                    <div class="hsb-input-wrap">
+                        <label for="hsb-search-input" class="hsb-visually-hidden">Tìm xe theo mẫu, hãng...</label>
+                        <img src="https://api.iconify.design/lucide:search.svg?width=18&height=18" alt="Tìm kiếm"
+                             class="hsb-input-icon"/>
+                        <input type="search" id="hsb-search-input" placeholder="Nhập tên xe, hãng, loại xe..."
+                               autocomplete="off" class="gjs-t-border hsb-input"/>
+                    </div>
+                    <button type="submit" class="gjs-t-button hsb-search-btn">
+                        <img src="https://api.iconify.design/lucide:search.svg?color=white&width=18&height=18"
+                             alt="Tìm"/>
+                        Tìm kiếm
+                    </button>
+                    <a href="#" id="hsb-search-clear" class="gjs-t-link hsb-clear">Xóa</a>
+                </form>
+                <p id="hsb-search-summary" aria-live="polite" class="hsb-summary"></p>
+                <p id="hsb-no-results" class="hsb-no-results">Không tìm thấy xe phù hợp. Thử từ khóa khác.</p>
+            </section>
+
+            <div id="iav9i" class="hero-actions">
+                <a href="{{ url_for('index') }}#listings" id="ipcxg" class="gjs-t-button hero-primary-button">Xem xe</a>
+                <a href="{{ url_for('index') }}#listings" id="idhek" class="gjs-t-link hero-secondary-link">Danh
+                    sách</a>
+            </div>
+        </div>
+        <div id="ie1tj" class="hero-media-wrapper">
+            <div id="imdsk" class="gjs-t-border hero-image-container">
+                <img src="https://app.grapesjs.com/api/assets/random-image?query=%22luxury%20sports%20car%20on%20coastal%20road%2C%20sunset%22&w=1200&h=675"
+                     alt="Xe sang trọng" width="1200" height="675" id="itbjp" class="hero-image"/>
+            </div>
+        </div>
+    </section>
+    <!-- Recommended Cars Section - CHỈ HIỂN THỊ KHI CÓ KHẢO SÁT -->
+    {% if survey_completed and recommended_cars %}
+    <section style="background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); padding: 40px 20px; margin: 20px 0;">
+        <div class="listings-container">
+            <!-- Banner -->
+            <div class="recommendation-banner" style="margin-bottom: 30px;">
+                <h2>🎯 Top 6 xe phù hợp nhất với bạn</h2>
+                <p style="margin: 10px 0; font-size: 16px;">
+                    Dựa trên khảo sát:
+                    {% if session.survey_data.body_types %}
+                    <strong>{{ session.survey_data.body_types|join(', ') }}</strong>
+                    {% endif %}
+                </p>
+                <div class="match-score">
+                    Budget: ${{ "{:,}".format(session.survey_data.budget_min|int) }} - ${{
+                    "{:,}".format(session.survey_data.budget_max|int) }}
+                </div>
+            </div>
+
+            <!-- Grid hiển thị xe -->
+            <div class="listings-grid">
+                {% for car in recommended_cars %}
+                <article class="gjs-t-border car-card"
+                         style="border: 3px solid #4CAF50; box-shadow: 0 5px 15px rgba(76,175,80,0.3);">
+                    <!-- Badge điểm match -->
+                    <span class="recommended-badge"
+                          style="background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);">
+                    ✨ {{ (car.final_score * 100)|int }}% Match
+                </span>
+
+                    <div class="car-image-container">
+                        <img loading="lazy"
+                             src="{{ url_for('static', filename=car.image_path) }}"
+                             alt="{{ car.brand }} {{ car.model }}"
+                             width="600" height="400"
+                             class="car-image"
+                             onerror="this.src='{{ url_for('static', filename='img/default.jpg') }}'"/>
+                    </div>
+
+                    <div class="car-card-body">
+                        <h3 class="car-model">{{ car.brand }} {{ car.model }}</h3>
+
+                        <p class="car-description">
+                            {% if car.bodytype %}{{ car.bodytype|title }}{% endif %}
+                            {% if car.fueltype %}| {{ car.fueltype|title }}{% endif %}
+                            {% if car.veenginepower and car.veenginepower > 0 %}| {{ car.veenginepower|int }} HP{% endif
+                            %}
+                        </p>
+
+                        <!-- Giá -->
+                        <div class="car-price-row" style="margin-bottom: 10px;">
+                        <span class="car-price" style="font-size: 24px; color: #4CAF50;">
+                            ${{ "{:,}".format((car.price * 1000)|int) }}
+                        </span>
+                            <button onclick='showCarInfo({{ car|tojson }})'
+                                    class="gjs-t-button car-details-button"
+                                    style="border: none; cursor: pointer;">
+                                Chi tiết
+                            </button>
+                        </div>
+
+                        <!-- LÝ DO NÊN CHỌN -->
+                        <div style="background: #f0f8ff; padding: 10px; border-radius: 8px; margin-top: 10px; border-left: 3px solid #4CAF50;">
+                            <strong style="color: #333; font-size: 14px;">💡 Tại sao phù hợp?</strong>
+                            <ul style="margin: 5px 0 0 0; padding-left: 20px; font-size: 13px; color: #555;">
+                                {% if car.rule_score > 0.8 %}
+                                <li>Đáp ứng {{ (car.rule_score * 100)|int }}% tiêu chí của bạn</li>
+                                {% endif %}
+
+                                {% if session.survey_data.body_types and car.bodytype|lower in
+                                (session.survey_data.body_types|map('lower')|list) %}
+                                <li>Đúng loại xe bạn muốn ({{ car.bodytype }})</li>
+                                {% endif %}
+
+                                {% if session.survey_data.budget_min <= car.price <= session.survey_data.budget_max %}
+                                <li>Trong tầm ngân sách của bạn</li>
+                                {% endif %}
+
+                                {% if car.knn_score > 0.7 %}
+                                <li>Thông số kỹ thuật gần với mong muốn</li>
+                                {% endif %}
+
+                                {% if session.survey_data.preferred_brands and car.brand|lower in
+                                (session.survey_data.preferred_brands|map('lower')|list) %}
+                                <li>Thương hiệu bạn ưa thích ({{ car.brand }})</li>
+                                {% endif %}
+                            </ul>
+                        </div>
+
+                        <!-- Breakdown điểm số (optional - có thể ẩn) -->
+                        <details style="margin-top: 8px; font-size: 12px; color: #666;">
+                            <summary style="cursor: pointer;">📊 Xem chi tiết điểm</summary>
+                            <div style="padding: 5px 0;">
+                                <div>• Phù hợp tiêu chí: {{ (car.rule_score * 100)|int }}%</div>
+                                <div>• Độ gần specs: {{ (car.knn_score * 100)|int }}%</div>
+                                <div>• Tổng điểm: <strong>{{ (car.final_score * 100)|int }}%</strong></div>
+                            </div>
+                        </details>
+                    </div>
+                </article>
+                {% endfor %}
+            </div>
+        </div>
+    </section>
+    {% endif %}
+    <!-- Car Listings Section - DYNAMIC -->
+    <section id="listings" class="car-listings-section">
+        <div id="id0wx" class="listings-container">
+            <div id="ipelp" class="listings-header">
+                <h2 id="ixkiz" class="gjs-t-h2 listings-title">Danh sách xe mới nhất</h2>
+                <a href="{{ url_for('index') }}" id="ir5tc" class="gjs-t-link listings-view-all-link">Xem tất cả</a>
+            </div>
+            <div id="ioh9n" class="listings-grid">
+                {% for car in cars %}
+                <article class="gjs-t-border car-card">
+                    <div class="car-image-container">
+                        <img loading="lazy"
+                             src="{{ url_for('static', filename=car.image_path) }}"
+                             alt="{{ car.display_name }}"
+                             width="600" height="400"
+                             class="car-image"
+                             onerror="this.src='{{ url_for('static', filename='img/default.jpg') }}'"/>
+                    </div>
+                    <div class="car-card-body">
+                        <h3 class="car-model">{{ car.display_name }}</h3>
+                        <p class="car-description">
+                            {% if car.bodytype %}{{ car.bodytype|title }}{% endif %}
+                            {% if car.fueltype %}| {{ car.fueltype|title }}{% endif %}
+                            {% if car.veenginepower and car.veenginepower > 0 %}| {{ car.veenginepower|int }} HP{% endif
+                            %}
+                        </p>
+                        <div class="car-price-row">
+                            <span class="car-price">{{ car.price_display }}</span>
+                            <button onclick='showCarInfo({{ car|tojson }})' class="gjs-t-button car-details-button"
+                                    style="border: none; cursor: pointer;">
+                                Chi tiết
+                            </button>
+                        </div>
+                    </div>
+                </article>
+                {% endfor %}
+            </div>
+            {% if total_pages > 1 %}
+            <div class="pagination-container"
+                 style="display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 40px;">
+                {% if current_page > 1 %}
+                <a href="{{ url_for('index', page=current_page-1) }}#listings" class="gjs-t-button pagination-btn">
+                    ← Trang trước
+                </a>
+                {% endif %}
+
+                <div class="pagination-numbers" style="display: flex; gap: 5px;">
+                    {% for p in range(1, total_pages + 1) %}
+                    {% if p == current_page %}
+                    <span class="page-number active"
+                          style="padding: 10px 15px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 8px; font-weight: bold;">
+                            {{ p }}
+                        </span>
+                    {% elif p <= 3 or p > total_pages - 3 or (p >= current_page - 1 and p <= current_page + 1) %}
+                    <a href="{{ url_for('index', page=p) }}#listings" class="page-number"
+                       style="padding: 10px 15px; background: #f0f0f0; color: #333; border-radius: 8px; text-decoration: none; transition: all 0.3s;">
+                        {{ p }}
+                    </a>
+                    {% elif p == 4 or p == total_pages - 3 %}
+                    <span style="padding: 10px 5px;">...</span>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+
+                {% if current_page < total_pages %}
+                <a href="{{ url_for('index', page=current_page+1) }}#listings" class="gjs-t-button pagination-btn">
+                    Trang sau →
+                </a>
+                {% endif %}
+            </div>
+
+            <p style="text-align: center; color: #666; margin-top: 20px;">
+                Hiển thị {{ (current_page - 1) * 12 + 1 }} - {{ [current_page * 12, total_cars]|min }} / {{ total_cars
+                }} xe
+            </p>
+            {% endif %}
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="ib1wv7" class="about-section">
+        <div id="iz083x" class="about-container">
+            <h2 id="inlxrd" class="gjs-t-h2 about-title">Về chúng tôi</h2>
+            <p id="i9n3rk" class="about-text">
+                Từ năm 2008, LND Car Store đã kết nối người lái với những chiếc xe đáng tin cậy với giá cả hợp lý.
+                Đội ngũ của chúng tôi tuyển chọn từng chiếc xe, đảm bảo đáp ứng tiêu chuẩn về an toàn và hiệu suất.
+            </p>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="contact-section">
+        <div id="i2i6q4" class="contact-container">
+            <div id="i4lo5k" class="contact-details-column">
+                <h2 id="ixe84b" class="gjs-t-h2 contact-title">Liên hệ</h2>
+                <p id="iuiprz" class="contact-description">Có câu hỏi hoặc muốn đặt lịch lái thử? Liên hệ ngay!</p>
+                <div id="ixr0dx" class="contact-details-list">
+                    <div id="iey44l" class="contact-detail-item">
+                        <img src="https://api.iconify.design/lucide-phone.svg" alt="Phone" id="iseyc6"
+                             class="contact-icon-phone"/>
+                        <a href="tel:+1234567890" id="i8q7v4" class="gjs-t-link contact-phone-link">+1 (234) 567-890</a>
+                    </div>
+                    <div id="iou38k" class="contact-detail-item">
+                        <img src="https://api.iconify.design/lucide-mail.svg" alt="Email" id="i4i9h9"
+                             class="contact-icon-email"/>
+                        <a href="mailto:sales@carstore.example" id="ipznhx" class="gjs-t-link contact-email-link">sales@carstore.example</a>
                     </div>
                 </div>
             </div>
-
-            <div class="sidebar-section">
-                <h3 class="sidebar-title">🚗 Hãng xe</h3>
-                <div class="checkbox-group">
-                    <label><input type="checkbox" name="brand" value="all" checked> Tất cả</label>
-                    <label><input type="checkbox" name="brand" value="Mercedes-Benz"> Mercedes-Benz</label>
-                    <label><input type="checkbox" name="brand" value="BMW"> BMW</label>
-                    <label><input type="checkbox" name="brand" value="Audi"> Audi</label>
-                    <label><input type="checkbox" name="brand" value="Lexus"> Lexus</label>
-                    <label><input type="checkbox" name="brand" value="Porsche"> Porsche</label>
-                    <label><input type="checkbox" name="brand" value="Bentley"> Bentley</label>
+            <form method="post" action="{{ url_for('index') }}#contact" id="if9c4w" class="gjs-t-border contact-form">
+                <div id="i02o1u" class="form-field-name">
+                    <label for="name" id="i09l5c" class="label-name">Họ tên</label>
+                    <input type="text" id="name" name="name" required placeholder="Nguyễn Văn A"
+                           class="gjs-t-border input-name"/>
                 </div>
-            </div>
-
-            <div class="sidebar-section">
-                <h3 class="sidebar-title">📊 Loại xe</h3>
-                <div class="checkbox-group">
-                    <label><input type="checkbox" name="type" value="sedan"> Sedan</label>
-                    <label><input type="checkbox" name="type" value="suv"> SUV</label>
-                    <label><input type="checkbox" name="type" value="coupe"> Coupe</label>
-                    <label><input type="checkbox" name="type" value="convertible"> Convertible</label>
-                    <label><input type="checkbox" name="type" value="hatchback"> Hatchback</label>
+                <div id="i97y42" class="form-field-email">
+                    <label for="email" id="id23cd" class="label-email">Email</label>
+                    <input type="email" id="email" name="email" required placeholder="email@example.com"
+                           class="gjs-t-border input-email"/>
                 </div>
-            </div>
-
-            <button type="submit" class="filter-btn">Áp dụng bộ lọc</button>
-        </form>
-    </aside>
-
-    <main class="product-section">
-        <div class="section-header">
-            <h2 class="section-title">{{ page_title or "Xe cao cấp" }}</h2>
-            <div class="sort-dropdown">
-                <button class="sort-btn" type="button">
-                    Sắp xếp theo giá ⌄
-                </button>
-            </div>
-        </div>
-
-        <div class="product-grid">
-            {% for car in cars %}
-            <div class="product-card" data-car-id="{{ car.id }}">
-                <div class="product-image">
-                    {% if car.type == 'coupe' %}🏎️
-                    {% elif car.type == 'suv' %}🚙
-                    {% elif car.brand == 'Bentley' %}👑
-                    {% elif car.brand == 'Porsche' %}🏁
-                    {% else %}🚗{% endif %}
+                <div id="ihd8kf" class="form-field-message">
+                    <label for="message" id="ijdjn1" class="label-message">Tin nhắn</label>
+                    <textarea id="message" name="message" rows="5" required
+                              placeholder="Cho chúng tôi biết nhu cầu của bạn"
+                              class="gjs-t-border textarea-message"></textarea>
                 </div>
-                <div class="product-info">
-                    <h3 class="product-name">{{ car.brand }} {{ car.model }}</h3>
-                    <p class="product-specs">{{ car.specs }}</p>
-                    <div class="product-price">{{ (car.price / 1000000000) | round(1) }} tỷ VND</div>
-                    <div class="product-actions">
-                        <button class="btn btn-primary">Xem chi tiết</button>
-                        <button class="btn btn-secondary favorite-btn" data-car-id="{{ car.id }}">
-                            {% if car.is_favorite %}❤️{% else %}🤍{% endif %}
-                        </button>
-                    </div>
-                </div>
-            </div>
-            {% endfor %}
+                <button type="submit" id="ilx7mv" class="gjs-t-button submit-button">Gửi tin</button>
+            </form>
         </div>
-    </main>
-</div>
+    </section>
+    <!-- JavaScript for search -->
+    <script>
 
-<footer class="footer">
-    <div class="footer-container">
-        <div class="footer-grid">
-            <div class="footer-section">
-                <h4>Dịch vụ khách hàng</h4>
-                <ul>
-                    <li><a href="#">Chính sách bảo hành</a></li>
-                    <li><a href="#">Dịch vụ sau bán hàng</a></li>
-                    <li><a href="#">Tư vấn mua xe</a></li>
-                    <li><a href="#">Đăng ký lái thử</a></li>
-                    <li><a href="#">Tra cứu bảo dưỡng</a></li>
-                </ul>
-            </div>
 
-            <div class="footer-section">
-                <h4>Thông tin liên hệ</h4>
-                <ul>
-                    <li><a href="#">Hotline: 1900-xxx-xxx</a></li>
-                    <li><a href="#">Email: info@lndcarstore.com</a></li>
-                    <li><a href="#">Showroom: 123 Đường ABC, TP.HCM</a></li>
-                </ul>
-            </div>
+        (function () {
+            const form = document.getElementById('hsb-search-form');
+            const input = document.getElementById('hsb-search-input');
+            const clearLink = document.getElementById('hsb-search-clear');
+            const summary = document.getElementById('hsb-search-summary');
+            const noResults = document.getElementById('hsb-no-results');
 
-            <div class="footer-section">
-                <h4>Hình thức thanh toán</h4>
-                <ul>
-                    <li><a href="#">💳 Visa/Mastercard</a></li>
-                    <li><a href="#">🏦 Chuyển khoản ngân hàng</a></li>
-                    <li><a href="#">💰 Thanh toán trả góp</a></li>
-                    <li><a href="#">🤝 Đổi xe cũ lấy xe mới</a></li>
-                </ul>
-            </div>
+            function filterCards(query) {
+                const q = (query || '').trim().toLowerCase();
+                const cards = document.querySelectorAll('.car-card');
+                let shown = 0;
 
-            <div class="footer-section">
-                <h4>Về LND Car Store</h4>
-                <ul>
-                    <li><a href="#">Giới thiệu công ty</a></li>
-                    <li><a href="#">Tuyển dụng</a></li>
-                    <li><a href="#">Tin tức & Sự kiện</a></li>
-                    <li><a href="#">Chính sách bảo mật</a></li>
-                </ul>
-            </div>
+                cards.forEach(card => {
+                    const text = card.textContent.toLowerCase();
+                    const match = !q || text.includes(q);
+                    card.style.display = match ? '' : 'none';
+                    if (match) shown++;
+                });
+
+                if (summary) {
+                    summary.textContent = q ? `Hiển thị ${shown} kết quả cho "${query.trim()}"` : '';
+                }
+                if (noResults) {
+                    noResults.style.display = q && shown === 0 ? 'block' : 'none';
+                }
+            }
+
+            form.addEventListener('submit', e => {
+                e.preventDefault();
+                filterCards(input.value);
+            });
+
+            input.addEventListener('input', () => filterCards(input.value));
+
+            clearLink.addEventListener('click', e => {
+                e.preventDefault();
+                input.value = '';
+                filterCards('');
+                input.focus();
+            });
+
+            filterCards('');
+        })();
+    </script>
+</main>
+
+<footer class="site-footer">
+    <div class="footer-inner">
+        <div class="footer-brand">
+            <div class="footer-brand-mark"><span class="footer-brand-initials">CS</span></div>
+            <span class="footer-brand-name">LND Store</span>
         </div>
-
-        <div class="footer-bottom">
-            <p>© 2024 LND Car Store. Tất cả quyền được bảo lưu.</p>
-            <p>Địa chỉ: 123 Đường Luxury, Quận 1, TP. Hồ Chí Minh | Hotline: 1900-xxx-xxx</p>
+        <div class="footer-links">
+            <a href="{{ url_for('index') }}" class="gjs-t-link footer-link-home">Trang chủ</a>
+            <a href="{{ url_for('index') }}#listings" class="gjs-t-link footer-link-cars">Xe</a>
+            <a href="{{ url_for('index') }}#contact" class="gjs-t-link footer-link-contact">Liên hệ</a>
         </div>
+        <small class="footer-copyright">© 2025 Car Store. All rights reserved.</small>
     </div>
 </footer>
 
-<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
+<!-- Modal thông tin xe -->
+<div id="car-modal"
+     style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 9999; padding: 20px;">
+    <div style="max-width: 600px; margin: 50px auto; background: white; border-radius: 15px; padding: 30px; position: relative; box-shadow: 0 10px 50px rgba(0,0,0,0.3);">
+        <button onclick="closeModal()"
+                style="position: absolute; top: 15px; right: 15px; background: none; border: none; font-size: 30px; cursor: pointer; color: #999;">
+            &times;
+        </button>
+        <div id="car-info"></div>
+    </div>
+</div>
+
+<script>
+    function showCarInfo(car) {
+        const modal = document.getElementById('car-modal');
+        const info = document.getElementById('car-info');
+
+        info.innerHTML = `
+            <img src="/static/${car.image_path}" alt="${car.display_name}"
+                 style="width: 100%; border-radius: 10px; margin-bottom: 20px;"
+                 onerror="this.src='/static/img/default.jpg'"/>
+
+            <h2 style="margin: 0 0 10px 0; color: #333;">${car.display_name}</h2>
+            <p style="font-size: 28px; font-weight: bold; color: #667eea; margin-bottom: 20px;">${car.price_display}</p>
+
+            <table style="width: 100%; border-collapse: collapse;">
+                <tr style="border-bottom: 1px solid #eee;">
+                    <td style="padding: 10px 0; font-weight: bold;">Loại xe:</td>
+                    <td style="padding: 10px 0;">${car.bodytype || 'N/A'}</td>
+                </tr>
+                <tr style="border-bottom: 1px solid #eee;">
+                    <td style="padding: 10px 0; font-weight: bold;">Nhiên liệu:</td>
+                    <td style="padding: 10px 0;">${car.fueltype || 'N/A'}</td>
+                </tr>
+                <tr style="border-bottom: 1px solid #eee;">
+                    <td style="padding: 10px 0; font-weight: bold;">Công suất:</td>
+                    <td style="padding: 10px 0;">${car.veenginepower ? Math.round(car.veenginepower) + ' HP' : 'N/A'}</td>
+                </tr>
+                <tr style="border-bottom: 1px solid #eee;">
+                    <td style="padding: 10px 0; font-weight: bold;">Tiêu thụ:</td>
+                    <td style="padding: 10px 0;">${car.fuelconsumption ? parseFloat(car.fuelconsumption).toFixed(1) + ' L/100km' : 'N/A'}</td>
+                </tr>
+                <tr style="border-bottom: 1px solid #eee;">
+                    <td style="padding: 10px 0; font-weight: bold;">Số chỗ ngồi:</td>
+                    <td style="padding: 10px 0;">${car.seatingcapacity || 'N/A'}</td>
+                </tr>
+                <tr style="border-bottom: 1px solid #eee;">
+                    <td style="padding: 10px 0; font-weight: bold;">Tốc độ tối đa:</td>
+                    <td style="padding: 10px 0;">${car.speed || 'N/A'} km/h</td>
+                </tr>
+                <tr>
+                    <td style="padding: 10px 0; font-weight: bold;">Khí thải CO2:</td>
+                    <td style="padding: 10px 0;">${car.emissionsco2 || 'N/A'} g/km</td>
+                </tr>
+            </table>
+
+            <button onclick="closeModal()" style="width: 100%; padding: 15px; margin-top: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 10px; font-size: 16px; cursor: pointer;">
+                Đóng
+            </button>
+        `;
+
+        modal.style.display = 'block';
+    }
+
+    function closeModal() {
+        document.getElementById('car-modal').style.display = 'none';
+    }
+
+    // Đóng khi click bên ngoài
+    document.getElementById('car-modal')?.addEventListener('click', function(e) {
+        if (e.target === this) closeModal();
+    });
+</script>
+<script>
+    // Toggle user dropdown menu
+    document.getElementById('user-menu-btn')?.addEventListener('click', function(e) {
+        e.stopPropagation();
+        const dropdown = document.getElementById('user-dropdown');
+        dropdown.style.display = dropdown.style.display === 'none' ? 'block' : 'none';
+    });
+
+    // Đóng dropdown khi click bên ngoài
+    document.addEventListener('click', function() {
+        const dropdown = document.getElementById('user-dropdown');
+        if (dropdown) dropdown.style.display = 'none';
+    });
+</script>
 </body>
 </html>

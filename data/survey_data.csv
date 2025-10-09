@@ -1,0 +1,9 @@
+survey_id,email,submitted_at,budget_min,budget_max,body_types,preferred_brands,fuel_type,seating_capacity,engine_power_hp,usage,condition
+S1759500619,abc@abc,2025-10-03 21:10:19,20000,60000,['Bus'],['BMW'],Petrol,6,170,Family,Used
+S1759583202,abc@abc1,2025-10-04 20:06:42,40000,130000,['SUV'],['BMW'],Petrol,5,170,Business / ride-sharing,Used
+S1759583902,abc@abc1,2025-10-04 20:18:22,40.0,60.0,['Sedan'],['Audi'],Petrol,5,221,Family,Used
+S1759583992,abc@abc123,2025-10-04 20:19:52,40.0,60.0,['Sedan'],['Audi'],Petrol,5,221,Family,Used
+S1759585009,abc@abc1234,2025-10-04 20:36:49,60.0,300.0,"['Cabriolet', 'Coupe']",['Ferrari'],Petrol,2,340,Daily commute,Used
+S1759634681,abc@abc1234,2025-10-05 10:24:41,40.0,120.0,"['Sedan', 'Hatchback', 'Coupe']",['Honda'],Petrol,2,240,Business / ride-sharing,Used
+S1759830746,abc@abcd,2025-10-07 16:52:26,60.0,200.0,"['Sedan', 'SUV', 'Hatchback', 'Coupe']","['Audi', 'BMW', 'Honda']",Petrol,4,200,Business / ride-sharing,Used
+S1759851745,trong@123,2025-10-07 22:42:25,50.0,200.0,"['Sedan', 'Hatchback', 'Coupe']","['Audi', 'BMW', 'Ferrari']",Petrol,2,200,Business / ride-sharing,False,4,270,120

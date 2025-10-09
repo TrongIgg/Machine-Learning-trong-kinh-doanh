@@ -1,360 +1,417 @@
-from flask import Flask, render_template, request, redirect, url_for, session, jsonify
-import sqlite3
+import os
+import csv
 import json
+import sqlite3
+import pandas as pd
+import sys
 from pathlib import Path
+import hashlib
 
-app = Flask(__name__)
-app.secret_key = 'your-secret-key-change-in-production'
+# Import hybrid recommendation module
+sys.path.append(str(Path(__file__).parent / 'app'))
+try:
+    from hybrid_recommend import recommend_cars, parse_survey_data
+except ImportError:
+    print("⚠️ Warning: hybrid_recommend not found, using fallback")
+    recommend_cars = None
+    parse_survey_data = None
 
-# Paths
-ROOT = Path(__file__).resolve().parent
+from flask import Flask, render_template, request, redirect, url_for, session
 
-# Sample car data (thay thế cho việc load từ CSV)
-SAMPLE_CARS = [
-    {
-        'id': '1',
-        'brand': 'Mercedes-Benz',
-        'model': 'S-Class 2024',
-        'type': 'sedan',
-        'price': 3200000000,
-        'horsepower': 429,
-        'fuel_consumption': 8.5,
-        'specs': 'V6 3.0L • Hybrid • AWD • 429 HP'
-    },
-    {
-        'id': '2',
-        'brand': 'BMW',
-        'model': 'X7 2024',
-        'type': 'suv',
-        'price': 4800000000,
-        'horsepower': 523,
-        'fuel_consumption': 11.2,
-        'specs': 'V8 4.4L • Twin Turbo • AWD • 523 HP'
-    },
-    {
-        'id': '3',
-        'brand': 'Audi',
-        'model': 'Q8 2024',
-        'type': 'suv',
-        'price': 3900000000,
-        'horsepower': 340,
-        'fuel_consumption': 9.8,
-        'specs': 'V6 3.0L • TFSI • Quattro • 340 HP'
-    },
-    {
-        'id': '4',
-        'brand': 'Lexus',
-        'model': 'LX 600 2024',
-        'type': 'suv',
-        'price': 7200000000,
-        'horsepower': 409,
-        'fuel_consumption': 13.1,
-        'specs': 'V6 3.5L • Twin Turbo • AWD • 409 HP'
-    },
-    {
-        'id': '5',
-        'brand': 'Porsche',
-        'model': '911 Carrera',
-        'type': 'coupe',
-        'price': 8500000000,
-        'horsepower': 379,
-        'fuel_consumption': 8.9,
-        'specs': 'H6 3.0L • Twin Turbo • RWD • 379 HP'
-    },
-    {
-        'id': '6',
-        'brand': 'Bentley',
-        'model': 'Continental GT',
-        'type': 'coupe',
-        'price': 15800000000,
-        'horsepower': 626,
-        'fuel_consumption': 14.7,
-        'specs': 'W12 6.0L • Twin Turbo • AWD • 626 HP'
-    }
-]
+app = Flask(
+    __name__,
+    template_folder='templates',
+    static_folder='static'
+)
+app.secret_key = 'your_secret_key_here_change_in_production'
+
+# File paths
+ROOT_DIR = Path(__file__).parent
+DATA_FILE = ROOT_DIR / "data" / "data_car_demo.csv"
+USERS_FILE = ROOT_DIR / "data" / "users.csv"
+SURVEY_FILE = ROOT_DIR / "data" / "survey_data.csv"
+DB_FILE = ROOT_DIR / "data" / "app.db"
+
+# Đảm bảo thư mục data tồn tại
+(ROOT_DIR / "data").mkdir(exist_ok=True)
 
 
-# Database setup
+# ===== DATABASE SETUP =====
 def init_db():
-    with sqlite3.connect('users.db') as conn:
-        c = conn.cursor()
-        c.execute('''CREATE TABLE IF NOT EXISTS users (
-            username TEXT PRIMARY KEY,
-            password TEXT,
-            preferences TEXT
-        )''')
-        c.execute('''CREATE TABLE IF NOT EXISTS favorites (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            username TEXT,
-            car_id TEXT,
-            FOREIGN KEY (username) REFERENCES users (username)
-        )''')
-        conn.commit()
+    """Khởi tạo database và tables"""
+    conn = sqlite3.connect(DB_FILE)
+    c = conn.cursor()
+
+    # Bảng recommendations
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS recommendations (
+            email TEXT PRIMARY KEY,
+            survey_data TEXT NOT NULL,
+            car_indices TEXT NOT NULL,
+            scores TEXT NOT NULL,
+            created_at TEXT NOT NULL,
+            updated_at TEXT NOT NULL
+        )
+    ''')
+
+    conn.commit()
+    conn.close()
+    print("✓ Database initialized")
 
 
 init_db()
 
 
-def format_price(price):
-    """Format price to VND currency"""
-    return f"{price:,.0f} VND"
+# ===== CUSTOM FILTER =====
+@app.template_filter('format_number')
+def format_number(value):
+    """Format number với dấu phẩy ngăn cách hàng nghìn"""
+    try:
+        return "{:,.0f}".format(float(value))
+    except (ValueError, TypeError):
+        return value
 
 
-def get_user_favorites(username):
-    """Get user's favorite cars"""
-    if not username:
-        return []
-    with sqlite3.connect('users.db') as conn:
+# ===== USER MANAGEMENT =====
+def hash_password(password):
+    """Hash mật khẩu với SHA256"""
+    return hashlib.sha256(password.encode()).hexdigest()
+
+
+def save_user(full_name, email, password):
+    """Lưu user vào CSV"""
+    file_exists = USERS_FILE.exists()
+    with open(USERS_FILE, mode='a', newline='', encoding='utf-8') as f:
+        writer = csv.DictWriter(f, fieldnames=['full_name', 'email', 'password_hash', 'created_at'])
+        if not file_exists:
+            writer.writeheader()
+        writer.writerow({
+            'full_name': full_name,
+            'email': email,
+            'password_hash': hash_password(password),
+            'created_at': pd.Timestamp.now().strftime('%Y-%m-%d %H:%M:%S')
+        })
+
+
+def get_user(email):
+    """Lấy thông tin user từ CSV"""
+    if not USERS_FILE.exists():
+        return None
+    try:
+        users_df = pd.read_csv(USERS_FILE)
+        user = users_df[users_df['email'] == email]
+        if user.empty:
+            return None
+        return user.iloc[0].to_dict()
+    except Exception as e:
+        print(f"⚠️ Error reading users: {e}")
+        return None
+
+
+def verify_password(email, password):
+    """Kiểm tra password"""
+    user = get_user(email)
+    if not user:
+        return False
+    return user['password_hash'] == hash_password(password)
+
+
+# ===== CAR DATA =====
+def load_cars_with_images():
+    """Load dữ liệu xe với xử lý ảnh"""
+    try:
+        df = pd.read_csv(DATA_FILE)
+        print(f"✓ Loaded {len(df)} cars from {DATA_FILE}")
+
+        if 'img' in df.columns:
+            df['image_path'] = df['img']
+        else:
+            df['image_path'] = 'img/default.jpg'
+
+        df['display_name'] = df['brand'].astype(str) + ' ' + df['model'].astype(str)
+
+        def format_price(price):
+            try:
+                if pd.notna(price) and price > 0:
+                    return f"${float(price) * 1000:,.0f}"
+                return "Liên hệ"
+            except:
+                return "Liên hệ"
+
+        df['price_display'] = df['price'].apply(format_price)
+        return df
+    except Exception as e:
+        print(f"✗ Error loading cars: {e}")
+        return pd.DataFrame()
+
+
+car_df = load_cars_with_images()
+
+
+# ===== SURVEY & RECOMMENDATIONS =====
+def save_survey(email, survey_data):
+    """Lưu survey data vào CSV"""
+    import time
+    survey_id = f"S{int(time.time())}"
+    file_exists = SURVEY_FILE.exists()
+
+    with open(SURVEY_FILE, mode='a', newline='', encoding='utf-8') as f:
+        fieldnames = ['survey_id', 'email', 'submitted_at'] + list(survey_data.keys())
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        if not file_exists:
+            writer.writeheader()
+        row = {
+            'survey_id': survey_id,
+            'email': email,
+            'submitted_at': pd.Timestamp.now().strftime('%Y-%m-%d %H:%M:%S')
+        }
+        row.update(survey_data)
+        writer.writerow(row)
+
+
+def save_recommendations_to_db(email, survey_data, recommended_df):
+    """Lưu recommendations vào database"""
+    try:
+        conn = sqlite3.connect(DB_FILE)
         c = conn.cursor()
-        c.execute("SELECT car_id FROM favorites WHERE username = ?", (username,))
-        return [row[0] for row in c.fetchall()]
+
+        now = pd.Timestamp.now().isoformat()
+
+        # Lưu indices và scores
+        car_indices = recommended_df.index.tolist()
+        scores = {
+            'final': recommended_df['final_score'].tolist(),
+            'rule': recommended_df['rule_score'].tolist(),
+            'knn': recommended_df['knn_score'].tolist()
+        }
+
+        c.execute('''
+            INSERT OR REPLACE INTO recommendations 
+            (email, survey_data, car_indices, scores, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?)
+        ''', (
+            email,
+            json.dumps(survey_data),
+            json.dumps(car_indices),
+            json.dumps(scores),
+            now,
+            now
+        ))
+
+        conn.commit()
+        conn.close()
+        print(f"✓ Saved recommendations to DB for {email}")
+        return True
+    except Exception as e:
+        print(f"✗ DB save error: {e}")
+        return False
 
 
-def get_filtered_cars(min_price=None, max_price=None, brand=None, car_type=None):
-    """Filter cars based on criteria"""
-    filtered = SAMPLE_CARS.copy()
+def load_recommendations_from_db(email):
+    """Load recommendations từ database"""
+    try:
+        conn = sqlite3.connect(DB_FILE)
+        c = conn.cursor()
+        c.execute('''
+            SELECT survey_data, car_indices, scores 
+            FROM recommendations 
+            WHERE email = ?
+        ''', (email,))
 
-    if min_price:
-        filtered = [car for car in filtered if car['price'] >= min_price]
-    if max_price:
-        filtered = [car for car in filtered if car['price'] <= max_price]
-    if brand:
-        filtered = [car for car in filtered if car['brand'].lower() == brand.lower()]
-    if car_type:
-        filtered = [car for car in filtered if car['type'].lower() == car_type.lower()]
+        result = c.fetchone()
+        conn.close()
 
-    return filtered
+        if not result:
+            return None, None
+
+        survey_data = json.loads(result[0])
+        car_indices = json.loads(result[1])
+        scores = json.loads(result[2])
+
+        # Merge với car_df
+        recommended_cars = car_df.iloc[car_indices].copy()
+        recommended_cars['final_score'] = scores['final']
+        recommended_cars['rule_score'] = scores['rule']
+        recommended_cars['knn_score'] = scores['knn']
+        recommended_cars['car_index'] = car_indices
+
+        return survey_data, recommended_cars.to_dict('records')
+
+    except Exception as e:
+        print(f"✗ DB load error: {e}")
+        return None, None
 
 
+# ===== ROUTES =====
 @app.route('/')
 def index():
-    current_user = session.get('username')
-    cars = SAMPLE_CARS
-    user_favorites = get_user_favorites(current_user)
+    """Trang chủ với pagination và recommendations"""
+    page = request.args.get('page', 1, type=int)
+    per_page = 12
 
-    # Add favorite status to each car
-    for car in cars:
-        car['is_favorite'] = car['id'] in user_favorites
+    user_logged_in = session.get('logged_in', False)
+    recommended_cars = session.get('recommended_cars', [])
+    survey_completed = session.get('survey_completed', False)
+
+    start = (page - 1) * per_page
+    end = start + per_page
+    total_cars = len(car_df)
+    total_pages = max((total_cars + per_page - 1) // per_page, 1)
+
+    if recommended_cars and page == 1:
+        recommended_ids = [car.get('car_index') for car in recommended_cars]
+        remaining_df = car_df[~car_df.index.isin(recommended_ids)]
+        cars = remaining_df.iloc[start:end].to_dict('records')
+    else:
+        cars = car_df.iloc[start:end].to_dict('records')
 
     return render_template('index.html',
                            cars=cars,
-                           current_user=current_user,
-                           favorite_count=len(user_favorites),
-                           format_price=format_price)
+                           recommended_cars=recommended_cars if page == 1 else [],
+                           survey_completed=survey_completed,
+                           current_page=page,
+                           total_pages=total_pages,
+                           total_cars=total_cars,
+                           user_logged_in=user_logged_in,
+                           user_name=session.get('user_name', ''),
+                           user_email=session.get('user_email', ''))
 
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    """Login page"""
     if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
+        email = request.form.get('email', '').strip()
+        password = request.form.get('password', '')
 
-        if not username or not password:
-            return render_template('login.html', error="Vui lòng nhập đầy đủ thông tin")
+        if verify_password(email, password):
+            user = get_user(email)
+            session['logged_in'] = True
+            session['user_email'] = email
+            session['user_name'] = user['full_name']
 
-        with sqlite3.connect('users.db') as conn:
-            c = conn.cursor()
-            c.execute("SELECT * FROM users WHERE username = ? AND password = ?", (username, password))
-            user = c.fetchone()
+            # Load recommendations từ DB
+            survey_data, recommended_cars = load_recommendations_from_db(email)
 
-            if user:
-                session['username'] = username
-                return redirect(url_for('index'))
-            else:
-                return render_template('login.html', error="Sai tên đăng nhập hoặc mật khẩu")
+            if survey_data and recommended_cars:
+                session['survey_data'] = survey_data
+                session['recommended_cars'] = recommended_cars
+                session['survey_completed'] = True
+                print(f"✓ Loaded {len(recommended_cars)} recommendations for {email}")
+
+            print(f"✓ Login successful: {email}")
+            return redirect(url_for('index'))
+        else:
+            return render_template('login.html', error="Email hoặc mật khẩu không đúng!")
 
     return render_template('login.html')
 
 
+@app.route('/logout')
+def logout():
+    """Logout và clear session"""
+    session.clear()
+    return redirect(url_for('index'))
+
+
 @app.route('/register', methods=['GET', 'POST'])
 def register():
+    """Registration page"""
     if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
-        confirm_password = request.form['confirm-password']
+        full_name = request.form.get('full_name', '').strip()
+        email = request.form.get('email', '').strip()
+        password = request.form.get('password', '')
 
-        if not username or not password:
-            return render_template('register.html', error="Vui lòng nhập đầy đủ thông tin")
+        if not full_name or not email or not password:
+            return render_template('register.html', error="Vui lòng điền đầy đủ thông tin!")
 
-        if password != confirm_password:
-            return render_template('register.html', error="Mật khẩu không khớp")
+        if get_user(email):
+            return render_template('register.html', error="Email đã được đăng ký!")
 
-        with sqlite3.connect('users.db') as conn:
-            c = conn.cursor()
-            c.execute("SELECT * FROM users WHERE username = ?", (username,))
+        try:
+            save_user(full_name, email, password)
+            print(f"✓ Registration successful: {full_name} - {email}")
 
-            if c.fetchone():
-                return render_template('register.html', error="Tên đăng nhập đã tồn tại")
-
-            c.execute("INSERT INTO users (username, password, preferences) VALUES (?, ?, ?)",
-                      (username, password, None))
-            conn.commit()
-
-            session['username'] = username
+            session['logged_in'] = True
+            session['user_email'] = email
+            session['user_name'] = full_name
             return redirect(url_for('survey'))
+
+        except Exception as e:
+            print(f"✗ Registration error: {e}")
+            return render_template('register.html', error="Đã xảy ra lỗi, vui lòng thử lại!")
 
     return render_template('register.html')
 
 
-@app.route('/logout')
-def logout():
-    session.pop('username', None)
-    return redirect(url_for('index'))
-
 
 @app.route('/survey', methods=['GET', 'POST'])
 def survey():
+    """Survey page với recommendation generation"""
+    if 'logged_in' not in session:
+        return redirect(url_for('login'))
+
     if request.method == 'POST':
         try:
-            budget = float(request.form['budget'])
-            horsepower = float(request.form['horsepower'])
-            fuel = float(request.form['fuel'])
-
-            preferences = {
-                'budget': budget,
-                'horsepower': horsepower,
-                'fuel_consumption': fuel
-            }
-
-            if 'username' in session:
-                with sqlite3.connect('users.db') as conn:
-                    c = conn.cursor()
-                    c.execute("UPDATE users SET preferences = ? WHERE username = ?",
-                              (json.dumps(preferences), session['username']))
-                    conn.commit()
+            if parse_survey_data:
+                survey_data = parse_survey_data(request.form)
             else:
-                session['preferences'] = preferences
+                survey_data = {
+                    'budget_min': int(request.form.get('budget_min', 0) or 0) / 1000,
+                    'budget_max': int(request.form.get('budget_max', 100000) or 100000) / 1000,
+                    'body_types': request.form.getlist('body_types'),
+                    'fuel_type': request.form.get('fuel_type', ''),
+                    'seating_capacity': int(request.form.get('seating_capacity', 5) or 5),
+                    'engine_power_hp': int(request.form.get('engine_power_hp', 150) or 150),
+                }
 
-            return redirect(url_for('index'))
+            email = session.get('user_email', 'guest')
+            save_survey(email, survey_data)
+            print(f"✓ Survey saved for {email}")
 
-        except (ValueError, KeyError):
-            return render_template('survey.html', error="Vui lòng nhập số hợp lệ")
+            if recommend_cars and not car_df.empty:
+                # THAY ĐỔI TẠI ĐÂY: top_n=5 → top_n=6
+                recommended = recommend_cars(survey_data, car_df, top_n=6)  # ← SỬA Ở ĐÂY
+
+                # Lưu vào DB
+                save_recommendations_to_db(email, survey_data, recommended)
+
+                # Lưu vào session
+                session['survey_completed'] = True
+                session['recommended_cars'] = recommended.to_dict('records')
+                session['survey_data'] = survey_data
+
+                print(f"✓ Generated {len(recommended)} recommendations")
+            else:
+                print("⚠️ Recommendation unavailable")
+                session['recommended_cars'] = []
+
+        except Exception as e:
+            print(f"✗ Survey processing error: {e}")
+            import traceback
+            traceback.print_exc()
+            session['recommended_cars'] = []
+
+        return redirect(url_for('index'))
 
     return render_template('survey.html')
 
 
-@app.route('/filter', methods=['POST'])
-def filter_cars():
-    try:
-        min_price = request.form.get('min_price')
-        max_price = request.form.get('max_price')
-        brand = request.form.get('brand')
-        car_type = request.form.get('type')
-
-        min_price = float(min_price) if min_price else None
-        max_price = float(max_price) if max_price else None
-
-        filtered_cars = get_filtered_cars(min_price, max_price, brand, car_type)
-
-        current_user = session.get('username')
-        user_favorites = get_user_favorites(current_user)
-
-        # Add favorite status
-        for car in filtered_cars:
-            car['is_favorite'] = car['id'] in user_favorites
-
-        return render_template('index.html',
-                               cars=filtered_cars,
-                               current_user=current_user,
-                               favorite_count=len(user_favorites),
-                               format_price=format_price)
-
-    except (ValueError, TypeError):
-        return redirect(url_for('index'))
+@app.errorhandler(404)
+def not_found(e):
+    return "404 - Page not found", 404
 
 
-@app.route('/search', methods=['POST'])
-def search():
-    search_term = request.form.get('search', '').lower()
-
-    if not search_term:
-        return redirect(url_for('index'))
-
-    filtered_cars = [
-        car for car in SAMPLE_CARS
-        if search_term in car['brand'].lower()
-           or search_term in car['model'].lower()
-           or search_term in car['type'].lower()
-    ]
-
-    current_user = session.get('username')
-    user_favorites = get_user_favorites(current_user)
-
-    for car in filtered_cars:
-        car['is_favorite'] = car['id'] in user_favorites
-
-    return render_template('index.html',
-                           cars=filtered_cars,
-                           current_user=current_user,
-                           favorite_count=len(user_favorites),
-                           format_price=format_price,
-                           search_term=search_term)
-
-
-@app.route('/favorite', methods=['POST'])
-def toggle_favorite():
-    data = request.get_json()
-    car_id = data.get('car_id')
-    username = session.get('username')
-
-    if not username:
-        return jsonify({'success': False, 'message': 'Vui lòng đăng nhập'})
-
-    if not car_id:
-        return jsonify({'success': False, 'message': 'ID xe không hợp lệ'})
-
-    with sqlite3.connect('users.db') as conn:
-        c = conn.cursor()
-        c.execute("SELECT * FROM favorites WHERE username = ? AND car_id = ?", (username, car_id))
-
-        if c.fetchone():
-            # Remove from favorites
-            c.execute("DELETE FROM favorites WHERE username = ? AND car_id = ?", (username, car_id))
-            action = 'removed'
-        else:
-            # Add to favorites
-            c.execute("INSERT INTO favorites (username, car_id) VALUES (?, ?)", (username, car_id))
-            action = 'added'
-
-        conn.commit()
-
-        # Get updated favorite count
-        c.execute("SELECT COUNT(*) FROM favorites WHERE username = ?", (username,))
-        favorite_count = c.fetchone()[0]
-
-        return jsonify({
-            'success': True,
-            'action': action,
-            'favorite_count': favorite_count
-        })
-
-
-@app.route('/favorites')
-def favorites():
-    username = session.get('username')
-
-    if not username:
-        return redirect(url_for('login'))
-
-    user_favorites = get_user_favorites(username)
-    favorite_cars = [car for car in SAMPLE_CARS if car['id'] in user_favorites]
-
-    for car in favorite_cars:
-        car['is_favorite'] = True
-
-    return render_template('index.html',
-                           cars=favorite_cars,
-                           current_user=username,
-                           favorite_count=len(user_favorites),
-                           format_price=format_price,
-                           page_title="Xe yêu thích")
-
-
-# Template filters
-@app.template_filter('format_price')
-def format_price_filter(price):
-    return format_price(price)
+@app.errorhandler(500)
+def server_error(e):
+    return "500 - Server error", 500
 
 
 if __name__ == '__main__':
+    print("=" * 50)
+    print("🚗 Car Recommendation System")
+    print(f"📊 Loaded {len(car_df)} cars")
+    print(f"📁 Data directory: {ROOT_DIR / 'data'}")
+    print(f"💾 Database: {DB_FILE}")
+    print("=" * 50)
     app.run(debug=True, host='0.0.0.0', port=5000)
