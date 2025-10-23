@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lịch hẹn của tôi | Car Store</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .appointments-container {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 20px;
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .page-header h1 {
+            font-size: 36px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .page-header p {
+            color: #666;
+            font-size: 16px;
+        }
+
+        .appointment-card {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .appointment-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+        }
+
+        .appointment-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        .car-info h3 {
+            margin: 0 0 8px 0;
+            font-size: 24px;
+            color: #333;
+        }
+
+        .appointment-id {
+            font-size: 13px;
+            color: #999;
+            font-family: monospace;
+        }
+
+        .status-badge {
+            padding: 8px 20px;
+            border-radius: 25px;
+            font-size: 14px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-pending {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+            color: white;
+        }
+
+        .status-confirmed {
+            background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+            color: white;
+        }
+
+        .status-cancelled {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+        }
+
+        .appointment-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .detail-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .detail-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .detail-content strong {
+            display: block;
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 2px;
+        }
+
+        .detail-content span {
+            color: #333;
+            font-size: 15px;
+        }
+
+        .notes-section {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+
+        .notes-section strong {
+            color: #667eea;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .created-time {
+            text-align: right;
+            font-size: 12px;
+            color: #999;
+            margin-top: 10px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 80px 20px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            border-radius: 20px;
+            margin-top: 30px;
+        }
+
+        .empty-state-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+        }
+
+        .empty-state h2 {
+            font-size: 24px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .empty-state p {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        .cta-button {
+            display: inline-block;
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 30px;
+            font-weight: 600;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        @media (max-width: 768px) {
+            .appointment-header {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .appointment-details {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+<header class="site-header">
+    <nav class="navbar">
+        <a href="{{ url_for('index') }}" class="brand-link">
+            <div class="brand-mark"><span class="brand-initials">CS</span></div>
+            <span class="brand-name">LND</span>
+        </a>
+        <ul class="desktop-nav-links">
+            <li><a href="{{ url_for('index') }}" class="gjs-t-link">Trang chủ</a></li>
+            <li><a href="{{ url_for('my_appointments') }}" class="gjs-t-link"
+                   style="color: #667eea; font-weight: bold;">Lịch hẹn</a></li>
+        </ul>
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <span style="color: #333; font-weight: 500;">👤 {{ user_name }}</span>
+            <a href="{{ url_for('logout') }}" style="color: #e74c3c; text-decoration: none; font-weight: 500;">Đăng
+                xuất</a>
+        </div>
+    </nav>
+</header>
+
+<main class="appointments-container">
+    <div class="page-header">
+        <h1>📅 Lịch hẹn của tôi</h1>
+        <p>Quản lý các buổi khảo sát xe của bạn</p>
+    </div>
+
+    {% if appointments %}
+    <div>
+        {% for apt in appointments %}
+        <div class="appointment-card">
+            <div class="appointment-header">
+                <div class="car-info">
+                    <h3>🚗 {{ apt.car_brand }} {{ apt.car_model }}</h3>
+                    <p class="appointment-id">ID: {{ apt.appointment_id }}</p>
+                </div>
+                <div>
+                    {% if apt.status == 'pending' %}
+                    <span class="status-badge status-pending">⏳ Chờ xác nhận</span>
+                    {% elif apt.status == 'confirmed' %}
+                    <span class="status-badge status-confirmed">✓ Đã xác nhận</span>
+                    {% elif apt.status == 'cancelled' %}
+                    <span class="status-badge status-cancelled">✗ Đã hủy</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="appointment-details">
+                <div class="detail-item">
+                    <div class="detail-icon">📅</div>
+                    <div class="detail-content">
+                        <strong>Ngày hẹn</strong>
+                        <span>{{ apt.appointment_date }}</span>
+                    </div>
+                </div>
+
+                <div class="detail-item">
+                    <div class="detail-icon">🕐</div>
+                    <div class="detail-content">
+                        <strong>Giờ hẹn</strong>
+                        <span>{{ apt.appointment_time }}</span>
+                    </div>
+                </div>
+
+                <div class="detail-item">
+                    <div class="detail-icon">📍</div>
+                    <div class="detail-content">
+                        <strong>Khu vực</strong>
+                        <span>{{ apt.store_location }}</span>
+                    </div>
+                </div>
+
+                <div class="detail-item">
+                    <div class="detail-icon">📞</div>
+                    <div class="detail-content">
+                        <strong>SĐT liên hệ</strong>
+                        <span>{{ apt.phone }}</span>
+                    </div>
+                </div>
+            </div>
+
+            {% if apt.notes %}
+            <div class="notes-section">
+                <strong>📝 Ghi chú:</strong>
+                <p style="margin: 0; color: #555;">{{ apt.notes }}</p>
+            </div>
+            {% endif %}
+
+            <div class="created-time">
+                Đặt lịch lúc: {{ apt.created_at }}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-state-icon">📭</div>
+        <h2>Bạn chưa có lịch hẹn nào</h2>
+        <p>Hãy khảo sát xe để tìm chiếc xe phù hợp với bạn nhất!</p>
+        <a href="{{ url_for('index') }}" class="cta-button">
+            🔍 Khảo sát xe ngay
+        </a>
+    </div>
+    {% endif %}
+</main>
+
+<footer class="site-footer" style="margin-top: 60px;">
+    <div class="footer-inner">
+        <div class="footer-brand">
+            <div class="footer-brand-mark"><span class="footer-brand-initials">CS</span></div>
+            <span class="footer-brand-name">LND Store</span>
+        </div>
+        <div class="footer-links">
+            <a href="{{ url_for('index') }}" class="gjs-t-link footer-link-home">Trang chủ</a>
+            <a href="{{ url_for('index') }}#listings" class="gjs-t-link footer-link-cars">Xe</a>
+            <a href="{{ url_for('index') }}#contact" class="gjs-t-link footer-link-contact">Liên hệ</a>
+        </div>
+        <small class="footer-copyright">© 2025 Car Store. All rights reserved.</small>
+    </div>
+</footer>
+</body>
+</html>
