@@ -6,39 +6,35 @@ import pandas as pd
 import sys
 from pathlib import Path
 import hashlib
+from datetime import datetime
 
 # Import hybrid recommendation module
 sys.path.append(str(Path(__file__).parent / 'app'))
 try:
     from hybrid_recommend import recommend_cars, parse_survey_data
 except ImportError:
-    print("⚠️ Warning: hybrid_recommend not found, using fallback")
+    print("⚠️ Warning: hybrid_recommend not found")
     recommend_cars = None
     parse_survey_data = None
 
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 
-app = Flask(
-    __name__,
-    template_folder='templates',
-    static_folder='static'
-)
+app = Flask(__name__, template_folder='templates', static_folder='static')
 app.secret_key = 'your_secret_key_here_change_in_production'
 
-# File paths
 ROOT_DIR = Path(__file__).parent
 DATA_FILE = ROOT_DIR / "data" / "data_car_demo.csv"
 USERS_FILE = ROOT_DIR / "data" / "users.csv"
 SURVEY_FILE = ROOT_DIR / "data" / "survey_data.csv"
+APPOINTMENTS_FILE = ROOT_DIR / "data" / "appointments.csv"
 DB_FILE = ROOT_DIR / "data" / "app.db"
 
-# Đảm bảo thư mục data tồn tại
 (ROOT_DIR / "data").mkdir(exist_ok=True)
 
 
 # ===== DATABASE SETUP =====
 def init_db():
-    """Khởi tạo database và tables"""
+    """Khởi tạo database"""
     conn = sqlite3.connect(DB_FILE)
     c = conn.cursor()
 
@@ -65,7 +61,6 @@ init_db()
 # ===== CUSTOM FILTER =====
 @app.template_filter('format_number')
 def format_number(value):
-    """Format number với dấu phẩy ngăn cách hàng nghìn"""
     try:
         return "{:,.0f}".format(float(value))
     except (ValueError, TypeError):
@@ -74,12 +69,10 @@ def format_number(value):
 
 # ===== USER MANAGEMENT =====
 def hash_password(password):
-    """Hash mật khẩu với SHA256"""
     return hashlib.sha256(password.encode()).hexdigest()
 
 
 def save_user(full_name, email, password):
-    """Lưu user vào CSV"""
     file_exists = USERS_FILE.exists()
     with open(USERS_FILE, mode='a', newline='', encoding='utf-8') as f:
         writer = csv.DictWriter(f, fieldnames=['full_name', 'email', 'password_hash', 'created_at'])
@@ -94,26 +87,79 @@ def save_user(full_name, email, password):
 
 
 def get_user(email):
-    """Lấy thông tin user từ CSV"""
     if not USERS_FILE.exists():
         return None
     try:
         users_df = pd.read_csv(USERS_FILE)
         user = users_df[users_df['email'] == email]
-        if user.empty:
-            return None
-        return user.iloc[0].to_dict()
+        return user.iloc[0].to_dict() if not user.empty else None
     except Exception as e:
         print(f"⚠️ Error reading users: {e}")
         return None
 
 
 def verify_password(email, password):
-    """Kiểm tra password"""
     user = get_user(email)
-    if not user:
+    return user and user['password_hash'] == hash_password(password)
+
+
+# ===== APPOINTMENT FUNCTIONS =====
+def save_appointment_csv(email, full_name, car_brand, car_model, appointment_date,
+                         appointment_time, store_location, phone, notes):
+    """Lưu lịch hẹn vào CSV file"""
+    try:
+        file_exists = APPOINTMENTS_FILE.exists()
+
+        with open(APPOINTMENTS_FILE, mode='a', newline='', encoding='utf-8') as f:
+            fieldnames = [
+                'appointment_id', 'email', 'full_name', 'phone',
+                'car_brand', 'car_model', 'appointment_date', 'appointment_time',
+                'store_location', 'notes', 'status', 'created_at'
+            ]
+            writer = csv.DictWriter(f, fieldnames=fieldnames)
+
+            if not file_exists:
+                writer.writeheader()
+
+            appointment_id = f"APT{int(datetime.now().timestamp())}"
+
+            writer.writerow({
+                'appointment_id': appointment_id,
+                'email': email,
+                'full_name': full_name,
+                'phone': phone,
+                'car_brand': car_brand or 'Chưa chọn',
+                'car_model': car_model or 'Chưa chọn',
+                'appointment_date': appointment_date,
+                'appointment_time': appointment_time,
+                'store_location': store_location,
+                'notes': notes or '',
+                'status': 'pending',
+                'created_at': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+            })
+
+        print(f"✓ Appointment saved to CSV for {email}")
+        return True
+    except Exception as e:
+        print(f"✗ Error saving appointment: {e}")
+        import traceback
+        traceback.print_exc()
         return False
-    return user['password_hash'] == hash_password(password)
+
+
+def get_user_appointments_csv(email):
+    """Lấy danh sách lịch hẹn của user từ CSV"""
+    try:
+        if not APPOINTMENTS_FILE.exists():
+            return []
+
+        df = pd.read_csv(APPOINTMENTS_FILE)
+        user_appointments = df[df['email'] == email].sort_values('created_at', ascending=False)
+
+        return user_appointments.to_dict('records')
+    except Exception as e:
+        print(f"⚠️ Error reading appointments: {e}")
+        return []
 
 
 # ===== CAR DATA =====
@@ -177,7 +223,6 @@ def save_recommendations_to_db(email, survey_data, recommended_df):
 
         now = pd.Timestamp.now().isoformat()
 
-        # Lưu indices và scores
         car_indices = recommended_df.index.tolist()
         scores = {
             'final': recommended_df['final_score'].tolist(),
@@ -228,7 +273,6 @@ def load_recommendations_from_db(email):
         car_indices = json.loads(result[1])
         scores = json.loads(result[2])
 
-        # Merge với car_df
         recommended_cars = car_df.iloc[car_indices].copy()
         recommended_cars['final_score'] = scores['final']
         recommended_cars['rule_score'] = scores['rule']
@@ -245,7 +289,7 @@ def load_recommendations_from_db(email):
 # ===== ROUTES =====
 @app.route('/')
 def index():
-    """Trang chủ với pagination và recommendations"""
+    """Trang chủ"""
     page = request.args.get('page', 1, type=int)
     per_page = 12
 
@@ -309,7 +353,7 @@ def login():
 
 @app.route('/logout')
 def logout():
-    """Logout và clear session"""
+    """Logout"""
     session.clear()
     return redirect(url_for('index'))
 
@@ -344,10 +388,9 @@ def register():
     return render_template('register.html')
 
 
-
 @app.route('/survey', methods=['GET', 'POST'])
 def survey():
-    """Survey page với recommendation generation"""
+    """Survey page"""
     if 'logged_in' not in session:
         return redirect(url_for('login'))
 
@@ -370,13 +413,9 @@ def survey():
             print(f"✓ Survey saved for {email}")
 
             if recommend_cars and not car_df.empty:
-                # THAY ĐỔI TẠI ĐÂY: top_n=5 → top_n=6
-                recommended = recommend_cars(survey_data, car_df, top_n=6)  # ← SỬA Ở ĐÂY
-
-                # Lưu vào DB
+                recommended = recommend_cars(survey_data, car_df, top_n=6)
                 save_recommendations_to_db(email, survey_data, recommended)
 
-                # Lưu vào session
                 session['survey_completed'] = True
                 session['recommended_cars'] = recommended.to_dict('records')
                 session['survey_data'] = survey_data
@@ -397,6 +436,66 @@ def survey():
     return render_template('survey.html')
 
 
+@app.route('/book-appointment', methods=['POST'])
+def book_appointment():
+    """API endpoint để đặt lịch"""
+    if 'logged_in' not in session:
+        return jsonify({'success': False, 'message': 'Vui lòng đăng nhập'}), 401
+
+    try:
+        email = session.get('user_email')
+        full_name = session.get('user_name')
+
+        car_brand = request.form.get('car_brand', '')
+        car_model = request.form.get('car_model', '')
+        appointment_date = request.form.get('appointment_date')
+        appointment_time = request.form.get('appointment_time')
+        store_location = request.form.get('store_location')
+        phone = request.form.get('phone')
+        notes = request.form.get('notes', '')
+
+        # Validation
+        if not all([appointment_date, appointment_time, store_location, phone]):
+            return jsonify({'success': False, 'message': 'Vui lòng điền đầy đủ thông tin'}), 400
+
+        # Save to CSV
+        success = save_appointment_csv(
+            email, full_name, car_brand, car_model,
+            appointment_date, appointment_time, store_location, phone, notes
+        )
+
+        if success:
+            return jsonify({
+                'success': True,
+                'message': 'Đặt lịch thành công! Chúng tôi sẽ liên hệ bạn sớm.'
+            })
+        else:
+            return jsonify({'success': False, 'message': 'Có lỗi xảy ra, vui lòng thử lại'}), 500
+
+    except Exception as e:
+        print(f"✗ Appointment error: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'success': False, 'message': 'Lỗi server'}), 500
+
+
+@app.route('/my-appointments')
+def my_appointments():
+    """Trang xem lịch hẹn của user"""
+    if 'logged_in' not in session:
+        return redirect(url_for('login'))
+
+    email = session.get('user_email')
+    appointments = get_user_appointments_csv(email)
+
+    # SỬA: Đổi tên template thành 'appointment.html' (không có 's')
+    return render_template('appointment.html',
+                           appointments=appointments,
+                           user_logged_in=True,
+                           user_name=session.get('user_name'),
+                           user_email=email)
+
+
 @app.errorhandler(404)
 def not_found(e):
     return "404 - Page not found", 404
@@ -413,5 +512,6 @@ if __name__ == '__main__':
     print(f"📊 Loaded {len(car_df)} cars")
     print(f"📁 Data directory: {ROOT_DIR / 'data'}")
     print(f"💾 Database: {DB_FILE}")
+    print(f"📅 Appointments: {APPOINTMENTS_FILE}")
     print("=" * 50)
     app.run(debug=True, host='0.0.0.0', port=5000)
